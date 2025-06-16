@@ -1,0 +1,8 @@
+{
+    "source_root": ".",
+    "output_file": "logs.txt",
+    "ignore_file": ".bundleignore",
+    "include_extensions": [
+        ".log"
+    ]
+}

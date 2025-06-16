@@ -1,0 +1,13 @@
+# Ignorer les dossiers courants
+node_modules
+.git
+__pycache__
+
+# Fichiers à ignorer
+#*.log
+*.tmp
+*.pyc
+bundle_output.txt
+go.sum
+readme.txt
+pkg/qwrappb/qwrap.pb.go

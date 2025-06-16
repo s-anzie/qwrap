@@ -1,0 +1,191 @@
+syntax = "proto3";
+
+package qwrap_proto;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "qwrap/pkg/qwrappb"; // Adaptez si nécessaire
+
+// ==================== Énumérations et Types Communs ====================
+message GetFileMetadataRequest {
+  string request_id = 1; // ID unique pour cette requête de métadonnées
+  string file_id = 2;    // L'ID du fichier dont on veut les métadonnées
+}
+
+message GetFileMetadataResponse {
+  string request_id = 1;      // Rappel de l'ID de la requête
+  string agent_id = 2;        // ID de l'agent qui répond
+  FileMetadata metadata = 3;  // Les métadonnées trouvées par l'agent (peut être nil si non trouvé)
+  bool found = 4;             // True si l'agent a trouvé et peut servir ce fichier
+  string error_message = 5;   // Message d'erreur si found est false ou si problème
+}
+
+message StreamPurposeRequest {
+  enum Purpose {
+    PURPOSE_UNKNOWN = 0;
+    TRANSFER_REQUEST = 1;           // Client veut un plan
+    CLIENT_REPORT = 2;              // Client envoie des statuts de chunks
+    REGISTER_FOR_PLAN_UPDATES = 3;  // Client veut écouter les UpdatedTransferPlan
+    AGENT_REGISTRATION = 4;         // Agent veut s'enregistrer
+    AGENT_HEARTBEAT = 5;            // Agent envoie un heartbeat
+    GET_FILE_METADATA_REQUEST = 6;
+    GET_FILE_METADATA_RESPONSE = 7;
+    CHUNK_REQUEST = 8;
+  }
+  Purpose purpose = 1;
+  string plan_id_context = 2; // Optionnel, ex: pour REGISTER_FOR_PLAN_UPDATES
+}
+
+enum AgentStatus {
+  AGENT_STATUS_UNKNOWN = 0;
+  AGENT_STATUS_REGISTERING = 1;
+  AGENT_STATUS_IDLE = 2;
+  AGENT_STATUS_ACTIVE = 3;
+  AGENT_STATUS_DEGRADED = 4;
+  AGENT_STATUS_UNAVAILABLE = 5;
+  AGENT_STATUS_ERROR = 6;
+}
+
+enum ChecksumAlgorithm {
+  CHECKSUM_ALGORITHM_UNKNOWN = 0;
+  SHA256 = 1;
+  SHA512 = 2;
+  MD5 = 3;
+  XXHASH64 = 4;
+}
+
+message ByteRange {
+  int64 offset = 1;
+  int64 length = 2;
+}
+
+message FileMetadata {
+  string file_id = 1;
+  int64 total_size = 2;
+  ChecksumAlgorithm checksum_algorithm = 3;
+  string checksum_value = 4;
+  google.protobuf.Timestamp last_modified = 5;
+  map<string, string> custom_attributes = 6;
+}
+
+enum TransferEvent {
+  TRANSFER_EVENT_UNKNOWN = 0;
+  DOWNLOAD_STARTED = 1;
+  DOWNLOAD_SUCCESSFUL = 2;
+  DOWNLOAD_FAILED_AGENT_UNREACHABLE = 3;
+  DOWNLOAD_FAILED_TRANSFER_ERROR = 4;
+  DOWNLOAD_FAILED_CHECKSUM_MISMATCH = 5;
+  REASSIGNMENT_REQUESTED = 6;
+}
+
+enum ChunkErrorCode {
+  CHUNK_ERROR_UNKNOWN = 0;
+  CHUNK_NOT_FOUND = 1;
+  CHUNK_NOT_AVAILABLE_YET = 2;
+  AGENT_OVERLOADED = 3;
+  INTERNAL_AGENT_ERROR = 4;
+}
+
+// ==================== Messages Orchestrateur <-> Agent ====================
+message AgentRegistrationRequest {
+  string agent_id = 1;
+  string agent_address = 2;
+  repeated string capabilities = 3;
+  int64 max_concurrent_streams = 4;
+}
+
+message AgentRegistrationResponse {
+  bool success = 1;
+  string message = 2;
+  google.protobuf.Duration heartbeat_interval = 3;
+}
+
+message AgentHeartbeat {
+  string agent_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  AgentStatus status = 3;
+  float cpu_load_percent = 4;
+  int64 memory_usage_bytes = 5;
+  int64 available_bandwidth_bps = 6;
+  int32 active_client_connections = 7;
+  int32 active_chunk_transfers = 8;
+  map<string, string> custom_metrics = 9;
+}
+
+message HeartbeatResponse {}
+
+// ==================== Messages Client <-> Orchestrateur ====================
+message TransferOptions {
+  int32 priority = 1;
+  bool verify_chunk_checksums = 2;
+}
+
+message TransferRequest {
+  string request_id = 1;
+  repeated FileMetadata files_to_transfer = 2;
+  TransferOptions options = 3;
+}
+
+message ChunkInfo {
+  string file_id = 1;
+  uint64 chunk_id = 2;
+  ByteRange range = 3; // <<<<< MODIFIÉ ET ESSENTIEL
+  ChecksumAlgorithm checksum_algorithm = 4;
+  string checksum_value = 5;
+}
+
+message ChunkAssignment {
+  ChunkInfo chunk_info = 1;
+  string agent_id = 2;
+  string agent_address = 3;
+  google.protobuf.Timestamp estimated_availability_time = 4;
+}
+
+message TransferPlan {
+  string plan_id = 1;
+  string client_request_id = 2;
+  repeated FileMetadata source_file_metadata = 3;
+  int64 default_chunk_size = 4; // Peut-être moins pertinent si ChunkInfo.Range est toujours utilisé
+  repeated ChunkAssignment chunk_assignments = 5;
+  TransferOptions options = 6;
+  string error_message = 7;
+}
+
+message ClientReport {
+  string plan_id = 1;
+  google.protobuf.Timestamp report_timestamp = 2;
+  repeated ChunkTransferStatus chunk_statuses = 3;
+}
+
+message ChunkTransferStatus {
+  ChunkInfo chunk_info = 1;
+  TransferEvent event = 2;
+  string agent_id = 3;
+  string details = 4;
+  google.protobuf.Duration transfer_duration = 5;
+}
+
+message UpdatedTransferPlan {
+  string plan_id = 1;
+  repeated ChunkAssignment new_or_updated_assignments = 2;
+  repeated ChunkInfo invalidated_chunks = 3;
+}
+
+// Message du client pour s'abonner aux mises à jour de plan
+message RegisterForPlanUpdatesRequest {
+    string plan_id = 1;
+}
+
+
+// ==================== Messages Client <-> Agent ====================
+message ChunkRequest {
+  ChunkInfo chunk_info_requested = 1; // <<<<< MODIFIÉ: Le client envoie les détails complets.
+}
+
+message ChunkErrorResponse {
+  string file_id = 1; // Peut être extrait de ChunkInfoRequested
+  uint64 chunk_id = 2; // Peut être extrait de ChunkInfoRequested
+  ChunkErrorCode error_code = 3;
+  string message = 4;
+}
