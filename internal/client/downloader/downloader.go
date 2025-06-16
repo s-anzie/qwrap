@@ -288,7 +288,7 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 	totalChunksInPlan := len(initialPlan.ChunkAssignments)
 	var (
 		wg                           sync.WaitGroup
-		resultsChan                  = make(chan ChunkDownloadResult, d.config.Concurrency) // Assez grand pour ne pas bloquer les workers
+		resultsChan                  = make(chan *ChunkDownloadResult, d.config.Concurrency*2) // Assez grand pour ne pas bloquer les workers
 		downloadedSize               atomic.Int64
 		completedChunksCount         atomic.Int32
 		permanentlyFailedChunksCount atomic.Int32
@@ -434,6 +434,7 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 
 			muChunkStates.Lock() // Verrouiller pour accéder/modifier chunkStates
 			track, exists := chunkStates[result.ChunkInfo.ChunkId]
+
 			if !exists || track.isCompleted || track.isPermanentlyFailed {
 				muChunkStates.Unlock()
 				continue
@@ -443,7 +444,7 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 			isStaleResult := track.currentAssignment.AgentId != result.AgentID || track.currentAssignment.ChunkInfo.ChunkId != result.ChunkInfo.ChunkId
 			muChunkStates.Unlock() // Libérer avant d'envoyer le rapport
 
-			statusReport := qwrappb.ChunkTransferStatus{ChunkInfo: &result.ChunkInfo, AgentId: result.AgentID}
+			statusReport := qwrappb.ChunkTransferStatus{ChunkInfo: result.ChunkInfo, AgentId: result.AgentID}
 			if result.Err != nil {
 				statusReport.Details = result.Err.Error()
 			}
@@ -475,10 +476,13 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 					l.Warn("Max local retries on current assignment. Requesting reassignment.", "chunk_id", track.info.ChunkId, "agent", track.currentAssignment.AgentId)
 					track.awaitingReassignment = true
 					track.lastAwaitingReassignmentTime = time.Now()
-					reassignReqReport := statusReport
-					reassignReqReport.Event = qwrappb.TransferEvent_REASSIGNMENT_REQUESTED
-					reassignReqReport.Details = "Max local retries on assignment " + track.currentAssignment.AgentId
-					d.sendOrchestratorReport(workerCtx, initialPlan.PlanId, &reassignReqReport)
+					reassignReqReport := &qwrappb.ChunkTransferStatus{
+						ChunkInfo: statusReport.ChunkInfo,
+						AgentId:   statusReport.AgentId,
+						Event:     qwrappb.TransferEvent_REASSIGNMENT_REQUESTED,
+						Details:   "Max local retries on assignment " + track.currentAssignment.AgentId,
+					}
+					d.sendOrchestratorReport(workerCtx, initialPlan.PlanId, reassignReqReport)
 				}
 				muChunkStates.Unlock()
 
@@ -562,14 +566,45 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 	} // Fin de la boucle for outstandingChunks > 0
 
 endLoopDownload:
-	if finalErrLoop != nil && workerCtx.Err() == nil {
-		workerCancel()
-	} else if workerCtx.Err() != nil && finalErrLoop == nil {
+	// If the loop ended because of a context error that we haven't captured yet, record it.
+	if workerCtx.Err() != nil && finalErrLoop == nil {
 		finalErrLoop = workerCtx.Err()
 	}
 
-	l.Debug("Main download loop ended. Waiting for all goroutines.")
-	wg.Wait()
+	// Always cancel the worker context to signal all background tasks (workers, plan listener) to stop.
+	// This is critical to prevent a deadlock where background goroutines wait forever.
+	workerCancel()
+
+	l.Debug("Main download loop ended. Draining results and waiting for goroutines.")
+
+
+	// Start a goroutine to wait for all background tasks. It will close 'waitDone' when they are all finished.
+	waitDone := make(chan struct{})
+	go func() {
+		wg.Wait()
+		close(waitDone)
+	}()
+
+	// This loop drains any remaining results from workers until all workers have confirmed they are done.
+	// This prevents any worker from getting stuck trying to send a result.
+drainLoop:
+	for {
+		select {
+		case result, ok := <-resultsChan:
+			if !ok {
+				resultsChan = nil // Avoid busy-looping if channel is closed unexpectedly
+				continue
+			}
+			// Log the drained result for debugging purposes.
+			l.Debug("Drained a result during shutdown", "chunk_id", result.ChunkInfo.ChunkId, "err", result.Err)
+			activeDownloads.Add(-1)
+		case <-waitDone:
+			// All tasks are done, we can exit the drain loop.
+			break drainLoop
+		}
+	}
+
+	// Now that all workers are stopped, it's safe to close the results channel.
 	if resultsChan != nil {
 		close(resultsChan)
 	}
@@ -688,6 +723,7 @@ func (d *downloaderImpl) sendOrchestratorReport(ctx context.Context, planID stri
 	}()
 }
 
+
 func (d *downloaderImpl) tryWritePendingChunks(
 	destFile *os.File,
 	chunkStates map[uint64]*chunkTrack, // Lecture seule ici après lock externe
@@ -791,7 +827,7 @@ func (d *downloaderImpl) downloadWorker(
 	ctx context.Context,
 	workerID int,
 	jobsChan <-chan downloadWorkerJob,
-	resultsChan chan<- ChunkDownloadResult,
+	resultsChan chan<- *ChunkDownloadResult,
 	wg *sync.WaitGroup,
 ) {
 	defer wg.Done()
@@ -823,7 +859,7 @@ func (d *downloaderImpl) downloadWorker(
 			d.config.Logger.Debug("Global context cancelled before starting job fetch", "worker_id", workerID, "chunk_id", job.assignment.ChunkInfo.ChunkId)
 			// Envoyer un résultat d'erreur pour ce job non tenté
 			select {
-			case resultsChan <- ChunkDownloadResult{ChunkInfo: *job.assignment.ChunkInfo, Err: ctx.Err(), AgentID: job.assignment.AgentId, Attempt: job.attempt}:
+			case resultsChan <- &ChunkDownloadResult{ChunkInfo: job.assignment.ChunkInfo, Err: ctx.Err(), AgentID: job.assignment.AgentId, Attempt: job.attempt}:
 			case <-time.After(1 * time.Second): // Éviter de bloquer indéfiniment si resultsChan est plein
 				d.config.Logger.Warn("Timeout sending cancellation result to resultsChan", "worker_id", workerID)
 			}
@@ -834,8 +870,8 @@ func (d *downloaderImpl) downloadWorker(
 
 		// Envoyer le résultat, même en cas d'annulation du contexte pendant fetchChunk
 		select {
-		case resultsChan <- ChunkDownloadResult{
-			ChunkInfo: *job.assignment.ChunkInfo, // Envoyer une copie
+		case resultsChan <- &ChunkDownloadResult{
+			ChunkInfo: job.assignment.ChunkInfo,
 			Data:      chunkData,
 			Err:       err, // Peut être context.Canceled ou context.DeadlineExceeded
 			AgentID:   job.assignment.AgentId,
@@ -973,41 +1009,66 @@ func (d *downloaderImpl) fetchChunk(
 		payloadBuf = payloadBuf[:expectedSize] // Utiliser la capacité existante
 	}
 
-	// Lire exactement expectedSize octets. io.ReadFull est approprié ici.
-	// Le stream QUIC respectera le contexte `fetchCtx` pour l'annulation globale de l'opération de lecture.
-	// Si le serveur ferme le flux ou si la connexion est perdue, ReadFull retournera une erreur (probablement io.EOF ou io.ErrUnexpectedEOF).
-	bytesRead, readErr := io.ReadFull(stream, payloadBuf)
+	// 5. Lire les données du chunk avec une boucle de lecture robuste.
+	fetchLogger.Debug("Starting robust chunk read loop")
 
-	if readErr != nil {
-		// Si le contexte a été annulé/a expiré PENDANT la lecture, c'est l'erreur prioritaire.
+	// Allouer un buffer de la taille exacte attendue pour stocker les données du chunk.
+	// Cela évite de devoir créer une copie plus tard.
+	chunkData := make([]byte, expectedSize)
+	totalBytesRead := 0
+
+	// Utiliser un buffer de lecture temporaire pour éviter de multiples petites lectures.
+	// 32KB est une taille courante et efficace.
+	readBuf := make([]byte, 32*1024)
+
+	for int64(totalBytesRead) < expectedSize {
+		// Vérifier si le contexte a été annulé avant de tenter une nouvelle lecture.
 		if fetchCtx.Err() != nil {
-			fetchLogger.Warn("Context cancelled/timed out during chunk data read from agent", "error", fetchCtx.Err(), "bytes_read_before_cancel", bytesRead)
+			fetchLogger.Warn("Context cancelled during chunk data read loop", "error", fetchCtx.Err(), "bytes_read_so_far", totalBytesRead)
 			return nil, fmt.Errorf("context error reading chunk %d data from %s: %w", assignment.ChunkInfo.ChunkId, assignment.AgentAddress, fetchCtx.Err())
 		}
-		// Sinon, c'est une erreur d'I/O.
-		if errors.Is(readErr, io.EOF) || errors.Is(readErr, io.ErrUnexpectedEOF) {
-			// Si nous obtenons EOF mais que nous n'avons pas lu expectedSize, c'est une lecture incomplète.
-			if int64(bytesRead) < expectedSize {
-				fetchLogger.Warn("Incomplete chunk received from agent", "expected", expectedSize, "received", bytesRead, "underlying_error", readErr)
-				return nil, fmt.Errorf("incomplete chunk %d from %s: got %d, want %d: %w",
-					assignment.ChunkInfo.ChunkId, assignment.AgentAddress, bytesRead, expectedSize, readErr)
+
+		// Lire depuis le stream dans le buffer temporaire.
+		// Le stream QUIC respecte le contexte `fetchCtx`, donc `Read` se débloquera si le contexte est annulé.
+		n, readErr := stream.Read(readBuf)
+
+		if n > 0 {
+			// Copier les octets lus du buffer temporaire vers le buffer final du chunk.
+			// S'assurer de ne pas écrire au-delà des limites du buffer `chunkData`.
+			copy(chunkData[totalBytesRead:], readBuf[:n])
+			totalBytesRead += n
+		}
+
+		if readErr != nil {
+			if readErr == io.EOF {
+				// EOF signifie que l'agent a fermé le stream de son côté.
+				// C'est une condition de fin normale. On sort de la boucle et on vérifiera la taille totale lue.
+				fetchLogger.Debug("EOF reached while reading chunk stream", "total_bytes_read", totalBytesRead, "expected_size", expectedSize)
+				break
 			}
-			// Si bytesRead == expectedSize et readErr == io.EOF, c'est normal pour ReadFull.
-			fetchLogger.Debug("ReadFull successful with expected EOF at end of chunk.")
-		} else {
-			fetchLogger.Warn("Failed to read chunk data from agent (non-EOF error)", "error", readErr, "bytes_read", bytesRead)
+			// Pour toute autre erreur (ex: réinitialisation de connexion, etc.), c'est une défaillance.
+			fetchLogger.Warn("Failed to read chunk data from agent (non-EOF error)", "error", readErr, "bytes_read_so_far", totalBytesRead)
 			return nil, fmt.Errorf("read chunk %d data from %s failed: %w", assignment.ChunkInfo.ChunkId, assignment.AgentAddress, readErr)
 		}
 	}
-	// Si readErr est nil, cela signifie que bytesRead == expectedSize.
 
-	// Renvoyer une copie des données lues pour éviter les problèmes si payloadBuf (du pool) est modifié/réutilisé.
-	// C'est crucial si les données du chunk doivent persister au-delà de cet appel de fonction.
-	dataCopy := make([]byte, bytesRead) // bytesRead devrait être égal à expectedSize ici si pas d'erreur
-	copy(dataCopy, payloadBuf[:bytesRead])
+	// Après la boucle, valider que la quantité totale de données lues correspond à la taille attendue.
+	if int64(totalBytesRead) < expectedSize {
+		fetchLogger.Warn("Incomplete chunk received from agent after read loop", "expected", expectedSize, "received", totalBytesRead)
+		// io.ErrUnexpectedEOF est une erreur appropriée pour indiquer une fin de flux prématurée.
+		return nil, fmt.Errorf("incomplete chunk %d from %s: got %d, want %d: %w",
+			assignment.ChunkInfo.ChunkId, assignment.AgentAddress, totalBytesRead, expectedSize, io.ErrUnexpectedEOF)
+	}
 
-	fetchLogger.Debug("Successfully fetched chunk data", "size", len(dataCopy))
-	return dataCopy, nil
+	// Il est peu probable de lire plus que prévu avec la condition de la boucle, mais c'est une vérification de sécurité.
+	if int64(totalBytesRead) > expectedSize {
+		fetchLogger.Error("Read more data than expected for chunk", "expected", expectedSize, "received", totalBytesRead)
+		// Trancher le buffer pour retourner uniquement la taille attendue, mais logger l'anomalie.
+		chunkData = chunkData[:expectedSize]
+	}
+
+	fetchLogger.Info("Successfully fetched chunk data with robust loop", "size", len(chunkData))
+	return chunkData, nil
 }
 
 // verifyChecksum vérifie le checksum des données.

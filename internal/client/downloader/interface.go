@@ -22,7 +22,7 @@ type ProgressInfo struct {
 
 // ChunkDownloadResult contient le résultat du téléchargement d'un chunk spécifique.
 type ChunkDownloadResult struct {
-	ChunkInfo qwrappb.ChunkInfo
+	ChunkInfo *qwrappb.ChunkInfo // Utiliser un pointeur pour éviter la copie du mutex interne
 	Data      []byte // Données du chunk si réussi
 	Err       error  // Erreur si le téléchargement a échoué
 	AgentID   string // Agent qui a fourni le chunk (ou tenté de le faire)
