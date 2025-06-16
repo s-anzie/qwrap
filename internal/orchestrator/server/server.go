@@ -305,7 +305,7 @@ func (s *OrchestratorServer) routeStream(ctx context.Context, streamCancel conte
 
 // --- Handlers Spécifiques (exemples, à appeler depuis routeStream ou handleConnection) ---
 // discoverFileMetadataFromAgents - Version Réelle
-func (s *OrchestratorServer) discoverFileMetadataFromAgents(ctx context.Context, fileID string, clientProvidedMeta *qwrappb.FileMetadata) (*qwrappb.FileMetadata, error) {
+func (s *OrchestratorServer) discoverFileMetadataFromAgents(ctx context.Context, fileID string, clientProvidedMeta *qwrappb.FileMetadata) (*qwrappb.FileMetadata, []*qwrappb.GetFileMetadataResponse, error) {
 	logger := s.config.Logger.With("op", "discoverFileMetadata", "file_id", fileID)
 	logger.Info("Attempting to discover file metadata by querying agents")
 
@@ -315,7 +315,7 @@ func (s *OrchestratorServer) discoverFileMetadataFromAgents(ctx context.Context,
 
 	if len(availableAgents) == 0 {
 		logger.Warn("No agents available to query for file metadata")
-		return nil, scheduler.ErrNoAgentsAvailable
+		return nil, nil, scheduler.ErrNoAgentsAvailable
 	}
 
 	responseChan := make(chan *qwrappb.GetFileMetadataResponse, len(availableAgents))
@@ -404,27 +404,33 @@ func (s *OrchestratorServer) discoverFileMetadataFromAgents(ctx context.Context,
 
 	if agentsQueriedCount == 0 {
 		logger.Warn("No agents were actually suitable or available to query for metadata.")
-		return nil, errors.New("no agents suitable for metadata query")
+		return nil, nil, errors.New("no agents suitable for metadata query")
 	}
 
 	var bestMeta *qwrappb.FileMetadata
+	var allPortions []*qwrappb.FilePortionInfo
 	var firstSuccessfulAgentID string
 	var allErrors []string
+	var allAgentResponses []*qwrappb.GetFileMetadataResponse
 
 	for resp := range responseChan {
-		if resp.Found && resp.Metadata != nil && resp.Metadata.TotalSize > 0 {
-			logger.Info("Received valid metadata from agent", "agent_id", resp.AgentId, "file_id", fileID, "size", resp.Metadata.TotalSize, "checksum", resp.Metadata.ChecksumValue)
-			if bestMeta == nil { // Prendre la première réponse valide
-				bestMeta = resp.Metadata
+		allAgentResponses = append(allAgentResponses, resp)
+		if resp.Found && resp.GlobalFileMetadata != nil && resp.GlobalFileMetadata.TotalSize > 0 {
+			logger.Info("Received valid metadata from agent", "agent_id", resp.AgentId, "file_id", fileID, "size", resp.GlobalFileMetadata.TotalSize, "checksum", resp.GlobalFileMetadata.ChecksumValue, "portions_found", len(resp.AvailablePortions))
+
+			// Aggregate portions
+			if len(resp.AvailablePortions) > 0 {
+				allPortions = append(allPortions, resp.AvailablePortions...)
+			}
+
+			if bestMeta == nil { // Take the first valid response for global metadata
+				bestMeta = resp.GlobalFileMetadata
 				firstSuccessfulAgentID = resp.AgentId
-				// Pourrait retourner ici pour la rapidité, ou continuer pour vérifier la cohérence / meilleure source
-			} else { // Comparer avec la meilleure réponse actuelle
-				if bestMeta.TotalSize != resp.Metadata.TotalSize {
-					logger.Warn("Metadata size mismatch between agents", "file_id", fileID, "agent1", firstSuccessfulAgentID, "size1", bestMeta.TotalSize, "agent2", resp.AgentId, "size2", resp.Metadata.TotalSize)
-					allErrors = append(allErrors, fmt.Sprintf("agent %s size %d vs agent %s size %d", firstSuccessfulAgentID, bestMeta.TotalSize, resp.AgentId, resp.Metadata.TotalSize))
-					// Gérer le conflit : qui croire ? Pour l'instant, on garde le premier.
+			} else { // Compare with the current best response for consistency
+				if bestMeta.TotalSize != resp.GlobalFileMetadata.TotalSize {
+					logger.Warn("Metadata size mismatch between agents", "file_id", fileID, "agent1", firstSuccessfulAgentID, "size1", bestMeta.TotalSize, "agent2", resp.AgentId, "size2", resp.GlobalFileMetadata.TotalSize)
+					allErrors = append(allErrors, fmt.Sprintf("agent %s size %d vs agent %s size %d", firstSuccessfulAgentID, bestMeta.TotalSize, resp.AgentId, resp.GlobalFileMetadata.TotalSize))
 				}
-				// Idem pour checksum
 			}
 		} else {
 			logger.Warn("Agent reported file not found or metadata invalid", "agent_id", resp.AgentId, "found_flag", resp.Found, "agent_err_msg", resp.ErrorMessage)
@@ -440,7 +446,7 @@ func (s *OrchestratorServer) discoverFileMetadataFromAgents(ctx context.Context,
 			errMsg += ". Agent reports: " + strings.Join(allErrors, "; ")
 		}
 		logger.Error(errMsg)
-		return nil, errors.New(errMsg)
+		return nil, nil, errors.New(errMsg)
 	}
 
 	// Fusionner avec les infos que le client aurait pu fournir (ex: CustomAttributes)
@@ -457,11 +463,10 @@ func (s *OrchestratorServer) discoverFileMetadataFromAgents(ctx context.Context,
 	}
 	// On pourrait aussi fusionner les CustomAttributes de `bestMeta` si l'agent en fournit.
 
-	logger.Info("Successfully resolved file metadata via agent query", "file_id", fileID, "size", finalMeta.TotalSize, "checksum", finalMeta.ChecksumValue, "source_agent_id", firstSuccessfulAgentID)
-	return finalMeta, nil
+	logger.Info("Successfully resolved file metadata and portions", "file_id", fileID, "size", finalMeta.TotalSize, "total_portions_found", len(allPortions), "source_agent_id_for_meta", firstSuccessfulAgentID)
+	return finalMeta, allAgentResponses, nil
 }
 
-// Modifier handleTransferRequest pour utiliser le planID généré par StateManager
 func (s *OrchestratorServer) handleTransferRequest(ctx context.Context, stream quic.Stream, reader framing.Reader, writer framing.Writer, remoteAddr net.Addr) {
 	logger := s.config.Logger.With("handler", "TransferRequest", "stream_id", stream.StreamID(), "remote_addr", remoteAddr.String())
 	var clientReq qwrappb.TransferRequest
@@ -487,9 +492,9 @@ func (s *OrchestratorServer) handleTransferRequest(ctx context.Context, stream q
 	// Pour cette version, on ne gère que le premier fichier de la requête.
 	requestedFileMetaFromClient := clientReq.FilesToTransfer[0]
 
-	// 1. Découverte des Métadonnées
-	resolveCtx, resolveCancel := context.WithTimeout(ctx, 20*time.Second) // Timeout pour la découverte
-	resolvedFileMeta, errMeta := s.discoverFileMetadataFromAgents(resolveCtx, requestedFileMetaFromClient.FileId, requestedFileMetaFromClient)
+	// 1. Discover Metadata AND Portions
+	resolveCtx, resolveCancel := context.WithTimeout(ctx, 20*time.Second) // Timeout for discovery
+	resolvedFileMeta, agentMetadata, errMeta := s.discoverFileMetadataFromAgents(resolveCtx, requestedFileMetaFromClient.FileId, requestedFileMetaFromClient)
 	resolveCancel()
 	if errMeta != nil {
 		logger.Error("Failed to resolve file metadata by orchestrator", "file_id", requestedFileMetaFromClient.FileId, "error", errMeta)
@@ -540,9 +545,9 @@ func (s *OrchestratorServer) handleTransferRequest(ctx context.Context, stream q
 		return
 	}
 
-	// 4. Demander au Scheduler de créer le plan d'affectation des chunks
-	// Le Scheduler reçoit maintenant internalTransferReq qui contient resolvedFileMeta avec la bonne taille.
-	schedulerPlan, errSched := s.config.Scheduler.CreateTransferPlan(ctx, planID, internalTransferReq)
+	// 4. Ask Scheduler to create the plan, now with portion info
+	// NOTE: This anticipates a change in the Scheduler's interface
+	schedulerPlan, errSched := s.config.Scheduler.CreateTransferPlan(ctx, planID, internalTransferReq, agentMetadata)
 	if errSched != nil {
 		logger.Error("Failed to create transfer plan from scheduler", "plan_id", planID, "error", errSched)
 		_ = s.config.StateManager.UpdateTransferStatus(ctx, planID, statemanager.StatusFailed, errSched.Error())

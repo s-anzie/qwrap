@@ -8,18 +8,6 @@ import "google/protobuf/duration.proto";
 option go_package = "qwrap/pkg/qwrappb"; // Adaptez si nécessaire
 
 // ==================== Énumérations et Types Communs ====================
-message GetFileMetadataRequest {
-  string request_id = 1; // ID unique pour cette requête de métadonnées
-  string file_id = 2;    // L'ID du fichier dont on veut les métadonnées
-}
-
-message GetFileMetadataResponse {
-  string request_id = 1;      // Rappel de l'ID de la requête
-  string agent_id = 2;        // ID de l'agent qui répond
-  FileMetadata metadata = 3;  // Les métadonnées trouvées par l'agent (peut être nil si non trouvé)
-  bool found = 4;             // True si l'agent a trouvé et peut servir ce fichier
-  string error_message = 5;   // Message d'erreur si found est false ou si problème
-}
 
 message StreamPurposeRequest {
   enum Purpose {
@@ -65,8 +53,9 @@ message FileMetadata {
   int64 total_size = 2;
   ChecksumAlgorithm checksum_algorithm = 3;
   string checksum_value = 4;
-  google.protobuf.Timestamp last_modified = 5;
-  map<string, string> custom_attributes = 6;
+  int64 chunk_size = 5; // Size of each chunk in bytes
+  google.protobuf.Timestamp last_modified = 6;
+  map<string, string> custom_attributes = 7;
 }
 
 enum TransferEvent {
@@ -114,6 +103,46 @@ message AgentHeartbeat {
 }
 
 message HeartbeatResponse {}
+
+message GetFileMetadataRequest {
+  string request_id = 1; // ID unique pour cette requête de métadonnées
+  string file_id = 2;    // L'ID du fichier dont on veut les métadonnées
+}
+
+// Décrit une portion contiguë d'un fichier global détenue par un agent.
+message FilePortionInfo {
+  // Identifiant unique du fichier global auquel cette portion appartient.
+  string global_file_id = 1;
+
+  // Position de début de la portion dans le fichier global (en octets).
+  int64 offset = 2;
+
+  // Nombre total de chunks dans cette portion. Doit être >= 1.
+  int64 num_chunks = 3;
+
+  // Taille standard de chaque chunk dans cette portion (en octets).
+  int64 chunk_size = 4;
+
+  // Taille du dernier chunk, si elle est différente de chunk_size.
+  // Si non spécifié (ou 0), tous les chunks ont la même taille.
+  optional int64 last_chunk_size = 5;
+
+  // Index global du premier chunk couvert par cette portion.
+  uint64 chunk_index_start = 6;
+
+  // Index global du dernier chunk couvert par cette portion.
+  uint64 chunk_index_end = 7;
+}
+
+message GetFileMetadataResponse {
+  string request_id = 1;      // Rappel de l'ID de la requête
+  string agent_id = 2;        // ID de l'agent qui répond
+  optional FileMetadata global_file_metadata = 3;  // Les métadonnées globales du fichier, si l'agent les connaît.
+  bool found = 4;             // True si l'agent a des informations sur ce fichier (même sans détenir de portion)
+  string error_message = 5;   // Message d'erreur si found est false ou si problème
+  // Liste des portions du fichier que cet agent détient. Vide si aucune.
+  repeated FilePortionInfo available_portions = 6;
+}
 
 // ==================== Messages Client <-> Orchestrateur ====================
 message TransferOptions {

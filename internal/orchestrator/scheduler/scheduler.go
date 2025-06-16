@@ -120,146 +120,139 @@ func (s *schedulerImpl) HandleHeartbeat(ctx context.Context, hb *qwrappb.AgentHe
 	return nil
 }
 
-func (s *schedulerImpl) CreateTransferPlan(ctx context.Context, planID string, transferReq *qwrappb.TransferRequest) (*qwrappb.TransferPlan, error) {
-	s.mu.RLock() // Lecture pour obtenir la liste des agents
+func (s *schedulerImpl) CreateTransferPlan(ctx context.Context, planID string, transferReq *qwrappb.TransferRequest, agentMetadata []*qwrappb.GetFileMetadataResponse) (*qwrappb.TransferPlan, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
 	if len(transferReq.FilesToTransfer) == 0 || transferReq.FilesToTransfer[0] == nil {
-		s.mu.RUnlock()
 		return nil, fmt.Errorf("%w: no files specified in transfer request", ErrTransferPlanCreationFailed)
 	}
-	// Pour l'instant, on se concentre sur le premier fichier.
-	// Une vraie gestion multi-fichiers nécessiterait une boucle et une agrégation de plans.
 	fileMeta := transferReq.FilesToTransfer[0]
 	if fileMeta.FileId == "" || fileMeta.TotalSize <= 0 {
-		s.mu.RUnlock()
 		return nil, fmt.Errorf("%w: invalid file metadata (ID: %s, Size: %d)", ErrTransferPlanCreationFailed, fileMeta.FileId, fileMeta.TotalSize)
 	}
 
-	// Filtrer les agents disponibles et sains
-	availableAgents := make([]*AgentInfo, 0, len(s.agents))
+	// 1. Filter for healthy, available agents
+	allAvailableAgents := make([]*AgentInfo, 0, len(s.agents))
 	for _, agent := range s.agents {
-		if agent.Status == qwrappb.AgentStatus_AGENT_STATUS_IDLE || agent.Status == qwrappb.AgentStatus_AGENT_STATUS_ACTIVE {
-			if agent.BlacklistedUntil.IsZero() || time.Now().After(agent.BlacklistedUntil) {
-				if agent.CurrentLoadPercentage < maxAgentLoadPercentage { // Ne pas surcharger
-					availableAgents = append(availableAgents, agent)
-				}
-			}
+		if (agent.Status == qwrappb.AgentStatus_AGENT_STATUS_IDLE || agent.Status == qwrappb.AgentStatus_AGENT_STATUS_ACTIVE) &&
+			(agent.BlacklistedUntil.IsZero() || time.Now().After(agent.BlacklistedUntil)) &&
+			agent.CurrentLoadPercentage < maxAgentLoadPercentage {
+			allAvailableAgents = append(allAvailableAgents, agent)
 		}
 	}
-	s.mu.RUnlock() // Libérer le RLock avant les opérations potentiellement longues
 
-	if len(availableAgents) == 0 {
-		s.config.Logger.Error("Failed to create transfer plan: no suitable agents available")
+	if len(allAvailableAgents) == 0 {
+		s.config.Logger.Error("Failed to create transfer plan: no suitable agents available at all.")
 		return nil, ErrNoAgentsAvailable
 	}
 
-	// Déterminer la taille des chunks (ex: 1MB par défaut, ou configurable)
-	// Doit être cohérent avec ce que les agents peuvent gérer.
-	// Pour cette version, utilisons une taille fixe.
-	// Une meilleure approche serait de la rendre configurable ou basée sur la taille du fichier.
-	defaultChunkSize := int64(1 * 1024 * 1024)                           // 1 MiB
-	if fileMeta.TotalSize < defaultChunkSize && fileMeta.TotalSize > 0 { // Si fichier plus petit que chunk size
+	// 2. Pre-process available portions for efficient lookup
+	chunkToAgentIDs := make(map[uint64][]string)
+	for _, resp := range agentMetadata {
+		for _, portion := range resp.AvailablePortions {
+			for chunkID := portion.ChunkIndexStart; chunkID <= portion.ChunkIndexEnd; chunkID++ {
+				chunkToAgentIDs[chunkID] = append(chunkToAgentIDs[chunkID], resp.AgentId)
+			}
+		}
+	}
+	availableAgentMap := make(map[string]*AgentInfo, len(allAvailableAgents))
+	for _, agent := range allAvailableAgents {
+		availableAgentMap[agent.ID] = agent
+	}
+
+	// 3. Define chunking strategy
+	defaultChunkSize := int64(1 * 1024 * 1024) // 1 MiB
+	if fileMeta.TotalSize < defaultChunkSize && fileMeta.TotalSize > 0 {
 		defaultChunkSize = fileMeta.TotalSize
 	}
-
 	numChunks := int(math.Ceil(float64(fileMeta.TotalSize) / float64(defaultChunkSize)))
 
-	s.config.Logger.Info("Creating transfer plan",
-		"plan_id", planID,
-		"file_id", fileMeta.FileId,
-		"total_size", fileMeta.TotalSize,
-		"num_chunks", numChunks,
-		"num_available_agents", len(availableAgents),
-		"algorithm", s.config.DefaultAlgorithm,
-	)
-	assignments := s.planWithLeastLoaded(fileMeta, defaultChunkSize, numChunks, availableAgents)
+	s.config.Logger.Info("Creating transfer plan with portion-aware strategy",
+		"plan_id", planID, "file_id", fileMeta.FileId, "total_size", fileMeta.TotalSize,
+		"num_chunks", numChunks, "num_available_agents", len(allAvailableAgents), "num_agent_responses", len(agentMetadata))
 
-	if len(assignments) != numChunks {
-		s.config.Logger.Error("Failed to assign all chunks", "assigned_count", len(assignments), "expected_count", numChunks)
-		return nil, fmt.Errorf("%w: could not assign all chunks for file %s", ErrTransferPlanCreationFailed, fileMeta.FileId)
-	}
-
-	// Créer le checksum global si non fourni (pourrait être coûteux pour l'orchestrateur)
-	// Ici, on assume qu'il est fourni dans FileMetadata ou qu'on le laisse vide.
-	// Un vrai orchestrateur pourrait avoir accès au fichier ou demander à un agent de le calculer.
-
-	plan := &qwrappb.TransferPlan{
-		PlanId:             planID,
-		ClientRequestId:    transferReq.RequestId,
-		SourceFileMetadata: []*qwrappb.FileMetadata{fileMeta}, // Renvoyer les métadonnées confirmées
-		DefaultChunkSize:   defaultChunkSize,
-		ChunkAssignments:   assignments,
-		Options:            transferReq.Options, // Transmettre les options du client
-	}
-
-	return plan, nil
-}
-
-// planWithLeastLoaded est un exemple d'algorithme.
-// Il essaie d'assigner les chunks aux agents les moins chargés.
-// Il ne gère pas encore la réplication des chunks critiques de manière sophistiquée ici.
-func (s *schedulerImpl) planWithLeastLoaded(
-	fileMeta *qwrappb.FileMetadata,
-	chunkSize int64,
-	numChunks int,
-	agents []*AgentInfo,
-) []*qwrappb.ChunkAssignment {
-	assignments := make([]*qwrappb.ChunkAssignment, numChunks)
-
-	// Trier les agents par leur charge actuelle (du moins au plus chargé)
-	// et secondairement par la bande passante disponible (du plus au moins).
-	sort.SliceStable(agents, func(i, j int) bool {
-		if agents[i].CurrentLoadPercentage == agents[j].CurrentLoadPercentage {
-			return agents[i].AvailableBandwidthBPS > agents[j].AvailableBandwidthBPS // Plus de bande passante en premier
+	// 4. Sort all available agents by least-loaded for assigning new chunks
+	sort.SliceStable(allAvailableAgents, func(i, j int) bool {
+		if allAvailableAgents[i].CurrentLoadPercentage == allAvailableAgents[j].CurrentLoadPercentage {
+			return allAvailableAgents[i].AvailableBandwidthBPS > allAvailableAgents[j].AvailableBandwidthBPS
 		}
-		return agents[i].CurrentLoadPercentage < agents[j].CurrentLoadPercentage
+		return allAvailableAgents[i].CurrentLoadPercentage < allAvailableAgents[j].CurrentLoadPercentage
 	})
 
-	agentIndex := 0
+	// 5. Assign chunks
+	assignments := make([]*qwrappb.ChunkAssignment, numChunks)
+	newChunkAgentIndex := 0
 	for i := 0; i < numChunks; i++ {
-		currentOffset := int64(i) * chunkSize
-		actualChunkSize := chunkSize
-		if currentOffset+chunkSize > fileMeta.TotalSize {
+		chunkID := uint64(i)
+		var selectedAgent *AgentInfo
+
+		// 5a. Try to assign from agents that already have the chunk
+		if agentIDs, ok := chunkToAgentIDs[chunkID]; ok {
+			candidateAgents := make([]*AgentInfo, 0, len(agentIDs))
+			for _, id := range agentIDs {
+				if agent, agentIsAvailable := availableAgentMap[id]; agentIsAvailable {
+					candidateAgents = append(candidateAgents, agent)
+				}
+			}
+
+			if len(candidateAgents) > 0 {
+				// Sort just the candidates that have the chunk by load
+				sort.SliceStable(candidateAgents, func(i, j int) bool {
+					if candidateAgents[i].CurrentLoadPercentage == candidateAgents[j].CurrentLoadPercentage {
+						return candidateAgents[i].AvailableBandwidthBPS > candidateAgents[j].AvailableBandwidthBPS
+					}
+					return candidateAgents[i].CurrentLoadPercentage < candidateAgents[j].CurrentLoadPercentage
+				})
+				selectedAgent = candidateAgents[0]
+				s.config.Logger.Debug("Assigning pre-existing chunk to best owner", "chunk_id", chunkID, "agent_id", selectedAgent.ID)
+			}
+		}
+
+		// 5b. If not assigned, pick from the general pool of available agents
+		if selectedAgent == nil {
+			if len(allAvailableAgents) > 0 {
+				selectedAgent = allAvailableAgents[newChunkAgentIndex%len(allAvailableAgents)]
+				newChunkAgentIndex++
+				s.config.Logger.Debug("Assigning new chunk via round-robin", "chunk_id", chunkID, "agent_id", selectedAgent.ID)
+			} else {
+				// Should have been caught earlier, but as a safeguard.
+				return nil, ErrNoAgentsAvailable
+			}
+		}
+
+		// 6. Create the assignment
+		currentOffset := int64(i) * defaultChunkSize
+		actualChunkSize := defaultChunkSize
+		if currentOffset+defaultChunkSize > fileMeta.TotalSize {
 			actualChunkSize = fileMeta.TotalSize - currentOffset
 		}
-
-		selectedAgent := agents[agentIndex%len(agents)] // Round-robin simple sur la liste triée
-
-		// (Simplification) Calculer un checksum de chunk factice ou le laisser vide.
-		// Un vrai système aurait besoin que l'agent source (ou l'orchestrateur) calcule cela.
-		// Pour l'instant, on ne met pas de checksum par chunk pour ne pas surcharger le proto.
-		// Si `transferReq.Options.VerifyChunkChecksums` est vrai, l'orchestrateur
-		// DOIT s'assurer que les checksums de chunks sont présents dans ChunkInfo.
-
 		chunkInfo := &qwrappb.ChunkInfo{
 			FileId:  fileMeta.FileId,
-			ChunkId: uint64(i),
-			Range: &qwrappb.ByteRange{
-				Offset: currentOffset,
-				Length: actualChunkSize,
-			},
-			// ChecksumAlgorithm: qwrappb.ChecksumAlgorithm_XXHASH64, // Exemple
-			// ChecksumValue:     calculateXxhash64ForRange(...), // Nécessiterait accès aux données
+			ChunkId: chunkID,
+			Range:   &qwrappb.ByteRange{Offset: currentOffset, Length: actualChunkSize},
 		}
-
 		assignments[i] = &qwrappb.ChunkAssignment{
 			ChunkInfo:    chunkInfo,
 			AgentId:      selectedAgent.ID,
 			AgentAddress: selectedAgent.Address,
 		}
-
-		// Simuler une augmentation de la charge pour l'équilibrage dans cette boucle
-		// (dans un vrai système, la charge de l'agent serait mise à jour par les heartbeats,
-		// ou le scheduler pourrait maintenir une charge "prévue")
-		selectedAgent.ActiveChunkTransfers++ // Attention: ceci modifie l'état partagé.
-		// Pour la planification, il vaut mieux travailler sur des copies ou des charges prévues.
-		// Pour cette version simplifiée, on l'omet pour éviter la complexité de la gestion
-		// de la charge "prévue" qui doit être décrémentée une fois le transfert réel fini.
-		// On se fie au tri initial et au round-robin.
-
-		agentIndex++
 	}
-	return assignments
+
+	if len(assignments) != numChunks {
+		return nil, fmt.Errorf("%w: could not assign all chunks for file %s", ErrTransferPlanCreationFailed, fileMeta.FileId)
+	}
+
+	plan := &qwrappb.TransferPlan{
+		PlanId:             planID,
+		ClientRequestId:    transferReq.RequestId,
+		SourceFileMetadata: []*qwrappb.FileMetadata{fileMeta},
+		DefaultChunkSize:   defaultChunkSize,
+		ChunkAssignments:   assignments,
+		Options:            transferReq.Options,
+	}
+
+	return plan, nil
 }
 
 func (s *schedulerImpl) ReportAgentFailure(ctx context.Context, agentID string, chunkInfo *qwrappb.ChunkInfo, reason string) error {

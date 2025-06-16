@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v6.30.2
-// source: proto/qwrap.proto
+// source: qwrap.proto
 
 package qwrappb
 
@@ -68,11 +68,11 @@ func (x AgentStatus) String() string {
 }
 
 func (AgentStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_qwrap_proto_enumTypes[0].Descriptor()
+	return file_qwrap_proto_enumTypes[0].Descriptor()
 }
 
 func (AgentStatus) Type() protoreflect.EnumType {
-	return &file_proto_qwrap_proto_enumTypes[0]
+	return &file_qwrap_proto_enumTypes[0]
 }
 
 func (x AgentStatus) Number() protoreflect.EnumNumber {
@@ -81,7 +81,7 @@ func (x AgentStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AgentStatus.Descriptor instead.
 func (AgentStatus) EnumDescriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{0}
+	return file_qwrap_proto_rawDescGZIP(), []int{0}
 }
 
 type ChecksumAlgorithm int32
@@ -123,11 +123,11 @@ func (x ChecksumAlgorithm) String() string {
 }
 
 func (ChecksumAlgorithm) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_qwrap_proto_enumTypes[1].Descriptor()
+	return file_qwrap_proto_enumTypes[1].Descriptor()
 }
 
 func (ChecksumAlgorithm) Type() protoreflect.EnumType {
-	return &file_proto_qwrap_proto_enumTypes[1]
+	return &file_qwrap_proto_enumTypes[1]
 }
 
 func (x ChecksumAlgorithm) Number() protoreflect.EnumNumber {
@@ -136,7 +136,7 @@ func (x ChecksumAlgorithm) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ChecksumAlgorithm.Descriptor instead.
 func (ChecksumAlgorithm) EnumDescriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{1}
+	return file_qwrap_proto_rawDescGZIP(), []int{1}
 }
 
 type TransferEvent int32
@@ -184,11 +184,11 @@ func (x TransferEvent) String() string {
 }
 
 func (TransferEvent) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_qwrap_proto_enumTypes[2].Descriptor()
+	return file_qwrap_proto_enumTypes[2].Descriptor()
 }
 
 func (TransferEvent) Type() protoreflect.EnumType {
-	return &file_proto_qwrap_proto_enumTypes[2]
+	return &file_qwrap_proto_enumTypes[2]
 }
 
 func (x TransferEvent) Number() protoreflect.EnumNumber {
@@ -197,7 +197,7 @@ func (x TransferEvent) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use TransferEvent.Descriptor instead.
 func (TransferEvent) EnumDescriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{2}
+	return file_qwrap_proto_rawDescGZIP(), []int{2}
 }
 
 type ChunkErrorCode int32
@@ -239,11 +239,11 @@ func (x ChunkErrorCode) String() string {
 }
 
 func (ChunkErrorCode) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_qwrap_proto_enumTypes[3].Descriptor()
+	return file_qwrap_proto_enumTypes[3].Descriptor()
 }
 
 func (ChunkErrorCode) Type() protoreflect.EnumType {
-	return &file_proto_qwrap_proto_enumTypes[3]
+	return &file_qwrap_proto_enumTypes[3]
 }
 
 func (x ChunkErrorCode) Number() protoreflect.EnumNumber {
@@ -252,7 +252,7 @@ func (x ChunkErrorCode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ChunkErrorCode.Descriptor instead.
 func (ChunkErrorCode) EnumDescriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{3}
+	return file_qwrap_proto_rawDescGZIP(), []int{3}
 }
 
 type StreamPurposeRequest_Purpose int32
@@ -306,11 +306,11 @@ func (x StreamPurposeRequest_Purpose) String() string {
 }
 
 func (StreamPurposeRequest_Purpose) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_qwrap_proto_enumTypes[4].Descriptor()
+	return file_qwrap_proto_enumTypes[4].Descriptor()
 }
 
 func (StreamPurposeRequest_Purpose) Type() protoreflect.EnumType {
-	return &file_proto_qwrap_proto_enumTypes[4]
+	return &file_qwrap_proto_enumTypes[4]
 }
 
 func (x StreamPurposeRequest_Purpose) Number() protoreflect.EnumNumber {
@@ -319,7 +319,7 @@ func (x StreamPurposeRequest_Purpose) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use StreamPurposeRequest_Purpose.Descriptor instead.
 func (StreamPurposeRequest_Purpose) EnumDescriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{0, 0}
+	return file_qwrap_proto_rawDescGZIP(), []int{0, 0}
 }
 
 type StreamPurposeRequest struct {
@@ -332,7 +332,7 @@ type StreamPurposeRequest struct {
 
 func (x *StreamPurposeRequest) Reset() {
 	*x = StreamPurposeRequest{}
-	mi := &file_proto_qwrap_proto_msgTypes[0]
+	mi := &file_qwrap_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -344,7 +344,7 @@ func (x *StreamPurposeRequest) String() string {
 func (*StreamPurposeRequest) ProtoMessage() {}
 
 func (x *StreamPurposeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[0]
+	mi := &file_qwrap_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -357,7 +357,7 @@ func (x *StreamPurposeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamPurposeRequest.ProtoReflect.Descriptor instead.
 func (*StreamPurposeRequest) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{0}
+	return file_qwrap_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *StreamPurposeRequest) GetPurpose() StreamPurposeRequest_Purpose {
@@ -384,7 +384,7 @@ type ByteRange struct {
 
 func (x *ByteRange) Reset() {
 	*x = ByteRange{}
-	mi := &file_proto_qwrap_proto_msgTypes[1]
+	mi := &file_qwrap_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -396,7 +396,7 @@ func (x *ByteRange) String() string {
 func (*ByteRange) ProtoMessage() {}
 
 func (x *ByteRange) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[1]
+	mi := &file_qwrap_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -409,7 +409,7 @@ func (x *ByteRange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ByteRange.ProtoReflect.Descriptor instead.
 func (*ByteRange) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{1}
+	return file_qwrap_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ByteRange) GetOffset() int64 {
@@ -432,16 +432,15 @@ type FileMetadata struct {
 	TotalSize         int64                  `protobuf:"varint,2,opt,name=total_size,json=totalSize,proto3" json:"total_size,omitempty"`
 	ChecksumAlgorithm ChecksumAlgorithm      `protobuf:"varint,3,opt,name=checksum_algorithm,json=checksumAlgorithm,proto3,enum=qwrap_proto.ChecksumAlgorithm" json:"checksum_algorithm,omitempty"`
 	ChecksumValue     string                 `protobuf:"bytes,4,opt,name=checksum_value,json=checksumValue,proto3" json:"checksum_value,omitempty"`
-	ChunkSize         int64                  `protobuf:"varint,5,opt,name=chunk_size,json=chunkSize,proto3" json:"chunk_size,omitempty"` // Size of each chunk in bytes
-	LastModified      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=last_modified,json=lastModified,proto3" json:"last_modified,omitempty"`
-	CustomAttributes  map[string]string      `protobuf:"bytes,7,rep,name=custom_attributes,json=customAttributes,proto3" json:"custom_attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	LastModified      *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=last_modified,json=lastModified,proto3" json:"last_modified,omitempty"`
+	CustomAttributes  map[string]string      `protobuf:"bytes,6,rep,name=custom_attributes,json=customAttributes,proto3" json:"custom_attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
 
 func (x *FileMetadata) Reset() {
 	*x = FileMetadata{}
-	mi := &file_proto_qwrap_proto_msgTypes[2]
+	mi := &file_qwrap_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -453,7 +452,7 @@ func (x *FileMetadata) String() string {
 func (*FileMetadata) ProtoMessage() {}
 
 func (x *FileMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[2]
+	mi := &file_qwrap_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -466,7 +465,7 @@ func (x *FileMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FileMetadata.ProtoReflect.Descriptor instead.
 func (*FileMetadata) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{2}
+	return file_qwrap_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *FileMetadata) GetFileId() string {
@@ -497,13 +496,6 @@ func (x *FileMetadata) GetChecksumValue() string {
 	return ""
 }
 
-func (x *FileMetadata) GetChunkSize() int64 {
-	if x != nil {
-		return x.ChunkSize
-	}
-	return 0
-}
-
 func (x *FileMetadata) GetLastModified() *timestamppb.Timestamp {
 	if x != nil {
 		return x.LastModified
@@ -531,7 +523,7 @@ type AgentRegistrationRequest struct {
 
 func (x *AgentRegistrationRequest) Reset() {
 	*x = AgentRegistrationRequest{}
-	mi := &file_proto_qwrap_proto_msgTypes[3]
+	mi := &file_qwrap_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -543,7 +535,7 @@ func (x *AgentRegistrationRequest) String() string {
 func (*AgentRegistrationRequest) ProtoMessage() {}
 
 func (x *AgentRegistrationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[3]
+	mi := &file_qwrap_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -556,7 +548,7 @@ func (x *AgentRegistrationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentRegistrationRequest.ProtoReflect.Descriptor instead.
 func (*AgentRegistrationRequest) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{3}
+	return file_qwrap_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AgentRegistrationRequest) GetAgentId() string {
@@ -598,7 +590,7 @@ type AgentRegistrationResponse struct {
 
 func (x *AgentRegistrationResponse) Reset() {
 	*x = AgentRegistrationResponse{}
-	mi := &file_proto_qwrap_proto_msgTypes[4]
+	mi := &file_qwrap_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -610,7 +602,7 @@ func (x *AgentRegistrationResponse) String() string {
 func (*AgentRegistrationResponse) ProtoMessage() {}
 
 func (x *AgentRegistrationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[4]
+	mi := &file_qwrap_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -623,7 +615,7 @@ func (x *AgentRegistrationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentRegistrationResponse.ProtoReflect.Descriptor instead.
 func (*AgentRegistrationResponse) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{4}
+	return file_qwrap_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *AgentRegistrationResponse) GetSuccess() bool {
@@ -664,7 +656,7 @@ type AgentHeartbeat struct {
 
 func (x *AgentHeartbeat) Reset() {
 	*x = AgentHeartbeat{}
-	mi := &file_proto_qwrap_proto_msgTypes[5]
+	mi := &file_qwrap_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -676,7 +668,7 @@ func (x *AgentHeartbeat) String() string {
 func (*AgentHeartbeat) ProtoMessage() {}
 
 func (x *AgentHeartbeat) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[5]
+	mi := &file_qwrap_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -689,7 +681,7 @@ func (x *AgentHeartbeat) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentHeartbeat.ProtoReflect.Descriptor instead.
 func (*AgentHeartbeat) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{5}
+	return file_qwrap_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *AgentHeartbeat) GetAgentId() string {
@@ -763,7 +755,7 @@ type HeartbeatResponse struct {
 
 func (x *HeartbeatResponse) Reset() {
 	*x = HeartbeatResponse{}
-	mi := &file_proto_qwrap_proto_msgTypes[6]
+	mi := &file_qwrap_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -775,7 +767,7 @@ func (x *HeartbeatResponse) String() string {
 func (*HeartbeatResponse) ProtoMessage() {}
 
 func (x *HeartbeatResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[6]
+	mi := &file_qwrap_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -788,7 +780,7 @@ func (x *HeartbeatResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HeartbeatResponse.ProtoReflect.Descriptor instead.
 func (*HeartbeatResponse) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{6}
+	return file_qwrap_proto_rawDescGZIP(), []int{6}
 }
 
 type GetFileMetadataRequest struct {
@@ -801,7 +793,7 @@ type GetFileMetadataRequest struct {
 
 func (x *GetFileMetadataRequest) Reset() {
 	*x = GetFileMetadataRequest{}
-	mi := &file_proto_qwrap_proto_msgTypes[7]
+	mi := &file_qwrap_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -813,7 +805,7 @@ func (x *GetFileMetadataRequest) String() string {
 func (*GetFileMetadataRequest) ProtoMessage() {}
 
 func (x *GetFileMetadataRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[7]
+	mi := &file_qwrap_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -826,7 +818,7 @@ func (x *GetFileMetadataRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFileMetadataRequest.ProtoReflect.Descriptor instead.
 func (*GetFileMetadataRequest) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{7}
+	return file_qwrap_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetFileMetadataRequest) GetRequestId() string {
@@ -867,7 +859,7 @@ type FilePortionInfo struct {
 
 func (x *FilePortionInfo) Reset() {
 	*x = FilePortionInfo{}
-	mi := &file_proto_qwrap_proto_msgTypes[8]
+	mi := &file_qwrap_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -879,7 +871,7 @@ func (x *FilePortionInfo) String() string {
 func (*FilePortionInfo) ProtoMessage() {}
 
 func (x *FilePortionInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[8]
+	mi := &file_qwrap_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -892,7 +884,7 @@ func (x *FilePortionInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilePortionInfo.ProtoReflect.Descriptor instead.
 func (*FilePortionInfo) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{8}
+	return file_qwrap_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *FilePortionInfo) GetGlobalFileId() string {
@@ -959,7 +951,7 @@ type GetFileMetadataResponse struct {
 
 func (x *GetFileMetadataResponse) Reset() {
 	*x = GetFileMetadataResponse{}
-	mi := &file_proto_qwrap_proto_msgTypes[9]
+	mi := &file_qwrap_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -971,7 +963,7 @@ func (x *GetFileMetadataResponse) String() string {
 func (*GetFileMetadataResponse) ProtoMessage() {}
 
 func (x *GetFileMetadataResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[9]
+	mi := &file_qwrap_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -984,7 +976,7 @@ func (x *GetFileMetadataResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFileMetadataResponse.ProtoReflect.Descriptor instead.
 func (*GetFileMetadataResponse) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{9}
+	return file_qwrap_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetFileMetadataResponse) GetRequestId() string {
@@ -1040,7 +1032,7 @@ type TransferOptions struct {
 
 func (x *TransferOptions) Reset() {
 	*x = TransferOptions{}
-	mi := &file_proto_qwrap_proto_msgTypes[10]
+	mi := &file_qwrap_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1052,7 +1044,7 @@ func (x *TransferOptions) String() string {
 func (*TransferOptions) ProtoMessage() {}
 
 func (x *TransferOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[10]
+	mi := &file_qwrap_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1065,7 +1057,7 @@ func (x *TransferOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TransferOptions.ProtoReflect.Descriptor instead.
 func (*TransferOptions) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{10}
+	return file_qwrap_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *TransferOptions) GetPriority() int32 {
@@ -1093,7 +1085,7 @@ type TransferRequest struct {
 
 func (x *TransferRequest) Reset() {
 	*x = TransferRequest{}
-	mi := &file_proto_qwrap_proto_msgTypes[11]
+	mi := &file_qwrap_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1105,7 +1097,7 @@ func (x *TransferRequest) String() string {
 func (*TransferRequest) ProtoMessage() {}
 
 func (x *TransferRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[11]
+	mi := &file_qwrap_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1118,7 +1110,7 @@ func (x *TransferRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TransferRequest.ProtoReflect.Descriptor instead.
 func (*TransferRequest) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{11}
+	return file_qwrap_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *TransferRequest) GetRequestId() string {
@@ -1155,7 +1147,7 @@ type ChunkInfo struct {
 
 func (x *ChunkInfo) Reset() {
 	*x = ChunkInfo{}
-	mi := &file_proto_qwrap_proto_msgTypes[12]
+	mi := &file_qwrap_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1167,7 +1159,7 @@ func (x *ChunkInfo) String() string {
 func (*ChunkInfo) ProtoMessage() {}
 
 func (x *ChunkInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[12]
+	mi := &file_qwrap_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1180,7 +1172,7 @@ func (x *ChunkInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChunkInfo.ProtoReflect.Descriptor instead.
 func (*ChunkInfo) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{12}
+	return file_qwrap_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ChunkInfo) GetFileId() string {
@@ -1230,7 +1222,7 @@ type ChunkAssignment struct {
 
 func (x *ChunkAssignment) Reset() {
 	*x = ChunkAssignment{}
-	mi := &file_proto_qwrap_proto_msgTypes[13]
+	mi := &file_qwrap_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1242,7 +1234,7 @@ func (x *ChunkAssignment) String() string {
 func (*ChunkAssignment) ProtoMessage() {}
 
 func (x *ChunkAssignment) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[13]
+	mi := &file_qwrap_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1255,7 +1247,7 @@ func (x *ChunkAssignment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChunkAssignment.ProtoReflect.Descriptor instead.
 func (*ChunkAssignment) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{13}
+	return file_qwrap_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ChunkAssignment) GetChunkInfo() *ChunkInfo {
@@ -1301,7 +1293,7 @@ type TransferPlan struct {
 
 func (x *TransferPlan) Reset() {
 	*x = TransferPlan{}
-	mi := &file_proto_qwrap_proto_msgTypes[14]
+	mi := &file_qwrap_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1313,7 +1305,7 @@ func (x *TransferPlan) String() string {
 func (*TransferPlan) ProtoMessage() {}
 
 func (x *TransferPlan) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[14]
+	mi := &file_qwrap_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1326,7 +1318,7 @@ func (x *TransferPlan) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TransferPlan.ProtoReflect.Descriptor instead.
 func (*TransferPlan) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{14}
+	return file_qwrap_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *TransferPlan) GetPlanId() string {
@@ -1389,7 +1381,7 @@ type ClientReport struct {
 
 func (x *ClientReport) Reset() {
 	*x = ClientReport{}
-	mi := &file_proto_qwrap_proto_msgTypes[15]
+	mi := &file_qwrap_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1401,7 +1393,7 @@ func (x *ClientReport) String() string {
 func (*ClientReport) ProtoMessage() {}
 
 func (x *ClientReport) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[15]
+	mi := &file_qwrap_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1414,7 +1406,7 @@ func (x *ClientReport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientReport.ProtoReflect.Descriptor instead.
 func (*ClientReport) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{15}
+	return file_qwrap_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ClientReport) GetPlanId() string {
@@ -1451,7 +1443,7 @@ type ChunkTransferStatus struct {
 
 func (x *ChunkTransferStatus) Reset() {
 	*x = ChunkTransferStatus{}
-	mi := &file_proto_qwrap_proto_msgTypes[16]
+	mi := &file_qwrap_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1463,7 +1455,7 @@ func (x *ChunkTransferStatus) String() string {
 func (*ChunkTransferStatus) ProtoMessage() {}
 
 func (x *ChunkTransferStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[16]
+	mi := &file_qwrap_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1476,7 +1468,7 @@ func (x *ChunkTransferStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChunkTransferStatus.ProtoReflect.Descriptor instead.
 func (*ChunkTransferStatus) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{16}
+	return file_qwrap_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ChunkTransferStatus) GetChunkInfo() *ChunkInfo {
@@ -1525,7 +1517,7 @@ type UpdatedTransferPlan struct {
 
 func (x *UpdatedTransferPlan) Reset() {
 	*x = UpdatedTransferPlan{}
-	mi := &file_proto_qwrap_proto_msgTypes[17]
+	mi := &file_qwrap_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1537,7 +1529,7 @@ func (x *UpdatedTransferPlan) String() string {
 func (*UpdatedTransferPlan) ProtoMessage() {}
 
 func (x *UpdatedTransferPlan) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[17]
+	mi := &file_qwrap_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1550,7 +1542,7 @@ func (x *UpdatedTransferPlan) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdatedTransferPlan.ProtoReflect.Descriptor instead.
 func (*UpdatedTransferPlan) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{17}
+	return file_qwrap_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *UpdatedTransferPlan) GetPlanId() string {
@@ -1584,7 +1576,7 @@ type RegisterForPlanUpdatesRequest struct {
 
 func (x *RegisterForPlanUpdatesRequest) Reset() {
 	*x = RegisterForPlanUpdatesRequest{}
-	mi := &file_proto_qwrap_proto_msgTypes[18]
+	mi := &file_qwrap_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1596,7 +1588,7 @@ func (x *RegisterForPlanUpdatesRequest) String() string {
 func (*RegisterForPlanUpdatesRequest) ProtoMessage() {}
 
 func (x *RegisterForPlanUpdatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[18]
+	mi := &file_qwrap_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1609,7 +1601,7 @@ func (x *RegisterForPlanUpdatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterForPlanUpdatesRequest.ProtoReflect.Descriptor instead.
 func (*RegisterForPlanUpdatesRequest) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{18}
+	return file_qwrap_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *RegisterForPlanUpdatesRequest) GetPlanId() string {
@@ -1629,7 +1621,7 @@ type ChunkRequest struct {
 
 func (x *ChunkRequest) Reset() {
 	*x = ChunkRequest{}
-	mi := &file_proto_qwrap_proto_msgTypes[19]
+	mi := &file_qwrap_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1641,7 +1633,7 @@ func (x *ChunkRequest) String() string {
 func (*ChunkRequest) ProtoMessage() {}
 
 func (x *ChunkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[19]
+	mi := &file_qwrap_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1654,7 +1646,7 @@ func (x *ChunkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChunkRequest.ProtoReflect.Descriptor instead.
 func (*ChunkRequest) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{19}
+	return file_qwrap_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ChunkRequest) GetChunkInfoRequested() *ChunkInfo {
@@ -1676,7 +1668,7 @@ type ChunkErrorResponse struct {
 
 func (x *ChunkErrorResponse) Reset() {
 	*x = ChunkErrorResponse{}
-	mi := &file_proto_qwrap_proto_msgTypes[20]
+	mi := &file_qwrap_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1688,7 +1680,7 @@ func (x *ChunkErrorResponse) String() string {
 func (*ChunkErrorResponse) ProtoMessage() {}
 
 func (x *ChunkErrorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_qwrap_proto_msgTypes[20]
+	mi := &file_qwrap_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1701,7 +1693,7 @@ func (x *ChunkErrorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChunkErrorResponse.ProtoReflect.Descriptor instead.
 func (*ChunkErrorResponse) Descriptor() ([]byte, []int) {
-	return file_proto_qwrap_proto_rawDescGZIP(), []int{20}
+	return file_qwrap_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ChunkErrorResponse) GetFileId() string {
@@ -1732,11 +1724,11 @@ func (x *ChunkErrorResponse) GetMessage() string {
 	return ""
 }
 
-var File_proto_qwrap_proto protoreflect.FileDescriptor
+var File_qwrap_proto protoreflect.FileDescriptor
 
-const file_proto_qwrap_proto_rawDesc = "" +
+const file_qwrap_proto_rawDesc = "" +
 	"\n" +
-	"\x11proto/qwrap.proto\x12\vqwrap_proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\"\xeb\x02\n" +
+	"\vqwrap.proto\x12\vqwrap_proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\"\xeb\x02\n" +
 	"\x14StreamPurposeRequest\x12C\n" +
 	"\apurpose\x18\x01 \x01(\x0e2).qwrap_proto.StreamPurposeRequest.PurposeR\apurpose\x12&\n" +
 	"\x0fplan_id_context\x18\x02 \x01(\tR\rplanIdContext\"\xe5\x01\n" +
@@ -1752,17 +1744,15 @@ const file_proto_qwrap_proto_rawDesc = "" +
 	"\rCHUNK_REQUEST\x10\b\";\n" +
 	"\tByteRange\x12\x16\n" +
 	"\x06offset\x18\x01 \x01(\x03R\x06offset\x12\x16\n" +
-	"\x06length\x18\x02 \x01(\x03R\x06length\"\xbf\x03\n" +
+	"\x06length\x18\x02 \x01(\x03R\x06length\"\xa0\x03\n" +
 	"\fFileMetadata\x12\x17\n" +
 	"\afile_id\x18\x01 \x01(\tR\x06fileId\x12\x1d\n" +
 	"\n" +
 	"total_size\x18\x02 \x01(\x03R\ttotalSize\x12M\n" +
 	"\x12checksum_algorithm\x18\x03 \x01(\x0e2\x1e.qwrap_proto.ChecksumAlgorithmR\x11checksumAlgorithm\x12%\n" +
-	"\x0echecksum_value\x18\x04 \x01(\tR\rchecksumValue\x12\x1d\n" +
-	"\n" +
-	"chunk_size\x18\x05 \x01(\x03R\tchunkSize\x12?\n" +
-	"\rlast_modified\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\flastModified\x12\\\n" +
-	"\x11custom_attributes\x18\a \x03(\v2/.qwrap_proto.FileMetadata.CustomAttributesEntryR\x10customAttributes\x1aC\n" +
+	"\x0echecksum_value\x18\x04 \x01(\tR\rchecksumValue\x12?\n" +
+	"\rlast_modified\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\flastModified\x12\\\n" +
+	"\x11custom_attributes\x18\x06 \x03(\v2/.qwrap_proto.FileMetadata.CustomAttributesEntryR\x10customAttributes\x1aC\n" +
 	"\x15CustomAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb4\x01\n" +
@@ -1898,20 +1888,20 @@ const file_proto_qwrap_proto_rawDesc = "" +
 	"\x14INTERNAL_AGENT_ERROR\x10\x04B\x13Z\x11qwrap/pkg/qwrappbb\x06proto3"
 
 var (
-	file_proto_qwrap_proto_rawDescOnce sync.Once
-	file_proto_qwrap_proto_rawDescData []byte
+	file_qwrap_proto_rawDescOnce sync.Once
+	file_qwrap_proto_rawDescData []byte
 )
 
-func file_proto_qwrap_proto_rawDescGZIP() []byte {
-	file_proto_qwrap_proto_rawDescOnce.Do(func() {
-		file_proto_qwrap_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_qwrap_proto_rawDesc), len(file_proto_qwrap_proto_rawDesc)))
+func file_qwrap_proto_rawDescGZIP() []byte {
+	file_qwrap_proto_rawDescOnce.Do(func() {
+		file_qwrap_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_qwrap_proto_rawDesc), len(file_qwrap_proto_rawDesc)))
 	})
-	return file_proto_qwrap_proto_rawDescData
+	return file_qwrap_proto_rawDescData
 }
 
-var file_proto_qwrap_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_proto_qwrap_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
-var file_proto_qwrap_proto_goTypes = []any{
+var file_qwrap_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_qwrap_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_qwrap_proto_goTypes = []any{
 	(AgentStatus)(0),                      // 0: qwrap_proto.AgentStatus
 	(ChecksumAlgorithm)(0),                // 1: qwrap_proto.ChecksumAlgorithm
 	(TransferEvent)(0),                    // 2: qwrap_proto.TransferEvent
@@ -1943,7 +1933,7 @@ var file_proto_qwrap_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil),         // 28: google.protobuf.Timestamp
 	(*durationpb.Duration)(nil),           // 29: google.protobuf.Duration
 }
-var file_proto_qwrap_proto_depIdxs = []int32{
+var file_qwrap_proto_depIdxs = []int32{
 	4,  // 0: qwrap_proto.StreamPurposeRequest.purpose:type_name -> qwrap_proto.StreamPurposeRequest.Purpose
 	1,  // 1: qwrap_proto.FileMetadata.checksum_algorithm:type_name -> qwrap_proto.ChecksumAlgorithm
 	28, // 2: qwrap_proto.FileMetadata.last_modified:type_name -> google.protobuf.Timestamp
@@ -1979,29 +1969,29 @@ var file_proto_qwrap_proto_depIdxs = []int32{
 	0,  // [0:28] is the sub-list for field type_name
 }
 
-func init() { file_proto_qwrap_proto_init() }
-func file_proto_qwrap_proto_init() {
-	if File_proto_qwrap_proto != nil {
+func init() { file_qwrap_proto_init() }
+func file_qwrap_proto_init() {
+	if File_qwrap_proto != nil {
 		return
 	}
-	file_proto_qwrap_proto_msgTypes[8].OneofWrappers = []any{}
-	file_proto_qwrap_proto_msgTypes[9].OneofWrappers = []any{}
+	file_qwrap_proto_msgTypes[8].OneofWrappers = []any{}
+	file_qwrap_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_qwrap_proto_rawDesc), len(file_proto_qwrap_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_qwrap_proto_rawDesc), len(file_qwrap_proto_rawDesc)),
 			NumEnums:      5,
 			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_proto_qwrap_proto_goTypes,
-		DependencyIndexes: file_proto_qwrap_proto_depIdxs,
-		EnumInfos:         file_proto_qwrap_proto_enumTypes,
-		MessageInfos:      file_proto_qwrap_proto_msgTypes,
+		GoTypes:           file_qwrap_proto_goTypes,
+		DependencyIndexes: file_qwrap_proto_depIdxs,
+		EnumInfos:         file_qwrap_proto_enumTypes,
+		MessageInfos:      file_qwrap_proto_msgTypes,
 	}.Build()
-	File_proto_qwrap_proto = out.File
-	file_proto_qwrap_proto_goTypes = nil
-	file_proto_qwrap_proto_depIdxs = nil
+	File_qwrap_proto = out.File
+	file_qwrap_proto_goTypes = nil
+	file_qwrap_proto_depIdxs = nil
 }

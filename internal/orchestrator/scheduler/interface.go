@@ -96,7 +96,7 @@ type Scheduler interface {
 	HandleHeartbeat(ctx context.Context, hb *qwrappb.AgentHeartbeat) error
 	// CreateTransferPlan génère un plan de transfert pour une requête donnée.
 	// Il sélectionne les agents appropriés pour chaque chunk.
-	CreateTransferPlan(ctx context.Context, planID string, transferReq *qwrappb.TransferRequest) (*qwrappb.TransferPlan, error)
+	CreateTransferPlan(ctx context.Context, planID string, transferReq *qwrappb.TransferRequest, agentMetadata []*qwrappb.GetFileMetadataResponse) (*qwrappb.TransferPlan, error)
 	// ReportAgentFailure est appelé par d'autres composants (ex: le client via l'orchestrateur principal)
 	// pour signaler qu'un agent a échoué à servir un chunk.
 	ReportAgentFailure(ctx context.Context, agentID string, chunkInfo *qwrappb.ChunkInfo, reason string) error
