@@ -2,6 +2,7 @@ agent_data
 agent_data_files
 bin
 logs
+data
 # ignore files
 downloaded_output_testfile_10M.dat
 errors.txt
