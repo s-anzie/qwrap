@@ -517,22 +517,32 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 						completedChunksCount.Add(1)
 						atomic.AddInt32(&outstandingChunks, -1)
 						downloadedSize.Add(int64(len(result.Data)))
-						muChunkStates.Unlock() // Déverrouiller avant tryWrite
-						_, writeErr := d.tryWritePendingChunks(destFile, chunkStates, &muChunkStates, &nextChunkToWriteID, mainFileMeta.FileId)
-						if writeErr != nil {
-							if finalErrLoop == nil {
-								finalErrLoop = writeErr
-							}
-							muChunkStates.Lock()                                 // Reprendre lock pour marquer comme échec
-							if track.isCompleted && !track.isPermanentlyFailed { // Si c'était ce chunk qui a causé l'erreur d'écriture
+
+						// Écrire les données du chunk dans le fichier immédiatement
+						if track.info.Range != nil {
+							_, writeErr := destFile.WriteAt(track.data, track.info.Range.Offset)
+							if writeErr != nil {
+								l.Error("Failed to write chunk to file", "chunk_id", track.info.ChunkId, "error", writeErr)
 								track.isPermanentlyFailed = true
 								track.isCompleted = false
 								permanentlyFailedChunksCount.Add(1)
 								completedChunksCount.Add(-1)
-								atomic.AddInt32(&outstandingChunks, 1) // Ajuster compteurs
+								atomic.AddInt32(&outstandingChunks, 1)
+								muChunkStates.Unlock()
+								if finalErrLoop == nil {
+									finalErrLoop = fmt.Errorf("failed to write chunk %d to file: %w", track.info.ChunkId, writeErr)
+								}
+								continue
 							}
-							muChunkStates.Unlock()
+							l.Debug("Chunk written to file", "chunk_id", track.info.ChunkId, "offset", track.info.Range.Offset, "size", len(track.data))
 						}
+
+						// Libérer la mémoire après écriture
+						track.data = nil
+
+						// Essayer d'écrire les chunks suivants qui pourraient être prêts
+						muChunkStates.Unlock()
+						d.tryWritePendingChunks(destFile, chunkStates, &muChunkStates, &nextChunkToWriteID, mainFileMeta.FileId)
 					} else {
 						muChunkStates.Unlock()
 					}
@@ -694,7 +704,7 @@ func (d *downloaderImpl) tryWritePendingChunks(
 	muChunkStates *sync.RWMutex,
 	nextChunkToWriteID *atomic.Uint64,
 	fileID string,
-) (processedAChunk bool, criticalWriteError error) { // Retourner un booléen si on a traité quelque chose, et une erreur critique
+) (processedAChunk bool, criticalWriteError error) {
 	muChunkStates.Lock()
 	defer muChunkStates.Unlock()
 
@@ -704,9 +714,18 @@ func (d *downloaderImpl) tryWritePendingChunks(
 		currentWriteID := nextChunkToWriteID.Load()
 		track, exists := chunkStates[currentWriteID]
 
-		if !exists || !track.isCompleted || track.data == nil {
+		if !exists || !track.isCompleted {
 			break
 		}
+
+		// Si le chunk est marqué comme complété mais n'a pas de données en mémoire,
+		// c'est qu'il a déjà été écrit sur le disque
+		if track.data == nil {
+			nextChunkToWriteID.Add(1)
+			processedAChunk = true
+			continue
+		}
+
 		processedAChunk = true // On a trouvé un chunk à traiter
 
 		chunkRange := track.info.Range
@@ -716,11 +735,9 @@ func (d *downloaderImpl) tryWritePendingChunks(
 				"chunk_id", currentWriteID, "expected", chunkRange.Length, "actual", len(track.data))
 
 			track.isPermanentlyFailed = true // Marquer comme corrompu DANS le track
-			// Ne pas incrémenter permanentlyFailedChunksCount ici, le faire dans la boucle principale de executeDownload
+			track.isCompleted = false
 			track.data = nil // Libérer la mémoire
-			// Retourner une erreur pour que la boucle principale sache qu'un chunk a échoué définitivement ici
 			criticalWriteError = fmt.Errorf("chunk %d data length mismatch, permanently failed", currentWriteID)
-			// On ne supprime pas de chunkStates, car son statut isFailedPerm est important
 			nextChunkToWriteID.Add(1) // On passe au suivant pour ne pas rester bloqué
 			continue                  // Essayer le prochain chunk si possible, ou la boucle se terminera
 		}
@@ -729,9 +746,14 @@ func (d *downloaderImpl) tryWritePendingChunks(
 		if err != nil {
 			d.config.Logger.Error("Failed to write chunk to file, critical error",
 				"chunk_id", currentWriteID, "offset", chunkRange.Offset, "error", err)
+			track.isPermanentlyFailed = true
+			track.isCompleted = false
+			track.data = nil
 			criticalWriteError = fmt.Errorf("critical file write error for chunk %d: %w", currentWriteID, err)
-			return // Sortir immédiatement en cas d'erreur d'écriture disque
+			nextChunkToWriteID.Add(1) // Passer au chunk suivant malgré l'erreur
+			continue
 		}
+
 		d.config.Logger.Debug("Successfully wrote chunk to disk",
 			"chunk_id", currentWriteID, "offset", chunkRange.Offset, "size", len(track.data))
 

@@ -1,8 +1,8 @@
 agent_data
 agent_data_files
+data
 bin
-agent
-
+logs
 # ignore files
 downloaded_output_testfile_10M.dat
 errors.txt
