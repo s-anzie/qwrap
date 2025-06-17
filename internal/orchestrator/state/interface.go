@@ -69,8 +69,8 @@ type TransferState struct {
 
 // StateManagerConfig contient la configuration du StateManager.
 type StateManagerConfig struct {
-	Logger *slog.Logger
-	// (Futur) PersistanceConfig (ex: BadgerDBPath, BoltDBPath, WALPath)
+	Logger   *slog.Logger
+	DBPath   string // Chemin vers le fichier de la base de données BoltDB
 	// (Futur) SnapshotInterval time.Duration
 	// (Futur) GCInterval time.Duration (pour nettoyer les vieux transferts)
 }
@@ -129,4 +129,7 @@ type StateManager interface {
 
 	// ListTransfers (Futur) Liste les transferts (avec filtres optionnels)
 	// ListTransfers(ctx context.Context, statusFilter TransferStatus, limit, offset int) ([]*TransferState, error)
+
+	// Close ferme les ressources du StateManager, comme la connexion à la base de données.
+	Close() error
 }

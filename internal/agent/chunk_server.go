@@ -3,6 +3,7 @@ package chunkserver
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -202,62 +203,88 @@ type ChunkServer interface {
 }
 
 // FilePortionInventory gère l'inventaire des portions de fichiers détenues par l'agent.
-// Pour l'instant, c'est une implémentation simple en mémoire.
+// Il assure la persistance de cet inventaire dans un fichier JSON.
 type FilePortionInventory struct {
 	mu       sync.RWMutex
-	portions map[string][]*qwrappb.FilePortionInfo // file_id -> liste des portions
+	portions map[string][]*qwrappb.FilePortionInfo
 	logger   *slog.Logger
+	filePath string // Chemin vers le fichier de persistance JSON
 }
 
-// NewFilePortionInventory crée un nouvel inventaire et le peuple avec des données en dur.
-func NewFilePortionInventory(logger *slog.Logger, agentID string) *FilePortionInventory {
-	inventory := &FilePortionInventory{
+// NewFilePortionInventory creates a new inventory, loading it from the persistence path if it exists.
+func NewFilePortionInventory(logger *slog.Logger, persistencePath string) (*FilePortionInventory, error) {
+	inv := &FilePortionInventory{
 		portions: make(map[string][]*qwrappb.FilePortionInfo),
-		logger:   logger.With("component", "portion_inventory"),
+		logger:   logger.With("component", "inventory"),
+		filePath: persistencePath,
 	}
-	inventory.loadHardcodedPortions(agentID)
-	return inventory
+
+	if err := inv.load(); err != nil {
+		// If the file doesn't exist, it's not a fatal error. The agent starts with an empty inventory.
+		if errors.Is(err, os.ErrNotExist) {
+			inv.logger.Info("Inventory file not found, starting with empty inventory", "path", inv.filePath)
+			return inv, nil
+		}
+		// Any other error (e.g., malformed JSON) is fatal.
+		return nil, fmt.Errorf("failed to load inventory from disk: %w", err)
+	}
+
+	inv.logger.Info("Successfully loaded inventory from disk", "path", inv.filePath)
+	return inv, nil
 }
 
-// loadHardcodedPortions simule le chargement de la configuration des portions.
-// NOTE: Ceci est une implémentation temporaire en dur pour les tests.
-func (inv *FilePortionInventory) loadHardcodedPortions(agentID string) {
+// save persiste l'inventaire actuel dans le fichier JSON.
+func (inv *FilePortionInventory) save() error {
+	inv.mu.RLock()
+	defer inv.mu.RUnlock()
+
+	data, err := json.MarshalIndent(inv.portions, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal inventory: %w", err)
+	}
+
+	// Crée le répertoire parent s'il n'existe pas
+	dir := filepath.Dir(inv.filePath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("failed to create directory for inventory: %w", err)
+	}
+
+	if err := os.WriteFile(inv.filePath, data, 0644); err != nil {
+		return fmt.Errorf("failed to write inventory file: %w", err)
+	}
+	inv.logger.Debug("Inventory saved successfully", "path", inv.filePath)
+	return nil
+}
+
+// load charge l'inventaire depuis le fichier JSON.
+func (inv *FilePortionInventory) load() error {
 	inv.mu.Lock()
 	defer inv.mu.Unlock()
 
-	const (
-		fileID10M = "testfile_10M.dat"
-		chunkSize = 1 * 1024 * 1024 // 1 MiB
-	)
-
-	// Basé sur todo.md, agent001 obtient la première moitié, agent002 la seconde.
-	if agentID == "agent001" {
-		inv.portions[fileID10M] = []*qwrappb.FilePortionInfo{
-			{
-				GlobalFileId:    fileID10M,
-				Offset:          0,
-				NumChunks:       5,
-				ChunkSize:       chunkSize,
-				ChunkIndexStart: 0,
-				ChunkIndexEnd:   4,
-			},
+	data, err := os.ReadFile(inv.filePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return err
 		}
-		inv.logger.Info("Loaded hardcoded file portions for agent001", "file_id", fileID10M)
-	} else if agentID == "agent002" {
-		inv.portions[fileID10M] = []*qwrappb.FilePortionInfo{
-			{
-				GlobalFileId:    fileID10M,
-				Offset:          5 * chunkSize,
-				NumChunks:       5,
-				ChunkSize:       chunkSize,
-				ChunkIndexStart: 5,
-				ChunkIndexEnd:   9,
-			},
-		}
-		inv.logger.Info("Loaded hardcoded file portions for agent002", "file_id", fileID10M)
-	} else {
-		inv.logger.Warn("No hardcoded portions defined for this agent ID", "agent_id", agentID)
+		return fmt.Errorf("failed to read inventory file: %w", err)
 	}
+
+	if len(data) == 0 {
+		// Le fichier est vide, initialiser avec une map vide
+		inv.portions = make(map[string][]*qwrappb.FilePortionInfo)
+		return nil
+	}
+
+	if err := json.Unmarshal(data, &inv.portions); err != nil {
+		return fmt.Errorf("failed to unmarshal inventory data: %w", err)
+	}
+
+	// Si le fichier JSON contient "null", la map sera nil
+	if inv.portions == nil {
+		inv.portions = make(map[string][]*qwrappb.FilePortionInfo)
+	}
+
+	return nil
 }
 
 // GetPortionsForFile renvoie les portions détenues pour un fileID donné.
@@ -283,7 +310,8 @@ type chunkServerImpl struct {
 	closed           bool
 }
 
-// NewChunkServer crée une nouvelle instance de ChunkServer.
+
+
 func NewChunkServer(config ChunkServerConfig, provider ChunkProvider) (ChunkServer, error) {
 	config.setDefaults()
 	if config.AgentId == "" {
@@ -296,8 +324,12 @@ func NewChunkServer(config ChunkServerConfig, provider ChunkProvider) (ChunkServ
 		provider = NewDiskFileProvider(config.BaseDataDir, config.Logger)
 	}
 
-	// Créer et initialiser l'inventaire des portions
-	portionInventory := NewFilePortionInventory(config.Logger, config.AgentId)
+	// Create and initialize the portion inventory.
+	inventoryPath := filepath.Join(config.BaseDataDir, "inventory.json")
+	portionInventory, err := NewFilePortionInventory(config.Logger, inventoryPath)
+	if err != nil {
+		return nil, fmt.Errorf("could not initialize portion inventory: %w", err)
+	}
 
 	return &chunkServerImpl{
 		config:           config,

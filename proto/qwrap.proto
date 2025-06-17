@@ -132,6 +132,10 @@ message FilePortionInfo {
 
   // Index global du dernier chunk couvert par cette portion.
   uint64 chunk_index_end = 7;
+
+  // Chemin d'accès local au fichier/chunk sur le disque de l'agent.
+  // Ce chemin est relatif au répertoire de données de base de l'agent.
+  string path_on_disk = 8;
 }
 
 message GetFileMetadataResponse {

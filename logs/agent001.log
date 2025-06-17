@@ -1,178 +1,35 @@
-time=2025-06-16T14:26:14.809+02:00 level=INFO msg="qwrap agent starting up..." agent_id=agent001 listen_addr_config=localhost:8080 data_dir=/home/bradley/work/qwrap-ws/agent_data/agent001 orchestrator=localhost:7878
-time=2025-06-16T14:26:14.809+02:00 level=WARN msg="No TLS cert/key files provided for ChunkServer, generating self-signed (INSECURE)" agent_id=agent001
-time=2025-06-16T14:26:15.029+02:00 level=INFO msg="Loaded hardcoded file portions for agent001" agent_id=agent001 component=portion_inventory file_id=testfile_10M.dat
-time=2025-06-16T14:26:15.029+02:00 level=INFO msg="ChunkServer attempting to start..." agent_id=agent001
-time=2025-06-16T14:26:15.029+02:00 level=INFO msg="failed to sufficiently increase receive buffer size (was: 208 kiB, wanted: 7168 kiB, got: 416 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details."
-time=2025-06-16T14:26:15.029+02:00 level=INFO msg="ChunkServer started, listening" agent_id=agent001 address=127.0.0.1:8080
-time=2025-06-16T14:26:17.030+02:00 level=INFO msg="ChunkServer is listening on" agent_id=agent001 actual_address=127.0.0.1:8080
-time=2025-06-16T14:26:17.030+02:00 level=INFO msg="Agent attempting to connect to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms address=localhost:7878
-time=2025-06-16T14:26:17.035+02:00 level=INFO msg="Agent successfully connected to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms address=localhost:7878
-time=2025-06-16T14:26:17.035+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 subcomponent=agent_orch_comms stream_id=0 operation=register
-time=2025-06-16T14:26:17.036+02:00 level=INFO msg="Agent successfully registered with orchestrator" agent_id=agent001 reported_listen_addr=127.0.0.1:8080
-time=2025-06-16T14:26:17.036+02:00 level=INFO msg="Heartbeat interval set" agent_id=agent001 interval=10s
-time=2025-06-16T14:26:17.036+02:00 level=INFO msg="Agent is running. Press Ctrl+C to exit." agent_id=agent001
-time=2025-06-16T14:26:17.036+02:00 level=INFO msg="Heartbeat loop started" agent_id=agent001
-time=2025-06-16T14:26:22.870+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent001 remote_addr=127.0.0.1:39104
-time=2025-06-16T14:26:22.870+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent001 remote_addr=127.0.0.1:39104
-time=2025-06-16T14:26:22.870+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:39104 stream_id=0
-time=2025-06-16T14:26:22.870+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:39104 stream_id=0
-time=2025-06-16T14:26:22.870+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:39104 stream_id=0 purpose=GET_FILE_METADATA_REQUEST
-time=2025-06-16T14:26:22.870+02:00 level=INFO msg="Processing GetFileMetadataRequest" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:39104 request_id=orch-meta-testfile_10M.dat-agent001 file_id=testfile_10M.dat
-time=2025-06-16T14:26:22.870+02:00 level=DEBUG msg="Found portions for file" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:39104 file_id=testfile_10M.dat num_portions=1
-time=2025-06-16T14:26:22.870+02:00 level=INFO msg="GetFileMetadataResponse sent" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:39104 request_id=orch-meta-testfile_10M.dat-agent001 found=true num_portions=1
-time=2025-06-16T14:26:22.870+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent001 remote_addr=127.0.0.1:39104 error="Application error 0x0 (remote): metadata query session finished"
-time=2025-06-16T14:26:22.871+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent001 remote_addr=127.0.0.1:39104
-time=2025-06-16T14:26:22.878+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent001 remote_addr=127.0.0.1:33330
-time=2025-06-16T14:26:22.878+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent001 remote_addr=127.0.0.1:33330
-time=2025-06-16T14:26:22.878+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=0
-time=2025-06-16T14:26:22.878+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=4
-time=2025-06-16T14:26:22.878+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=8
-time=2025-06-16T14:26:22.878+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=12
-time=2025-06-16T14:26:22.878+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=16
-time=2025-06-16T14:26:22.878+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=0
-time=2025-06-16T14:26:22.879+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=4
-time=2025-06-16T14:26:22.879+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=0 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.879+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=8
-time=2025-06-16T14:26:22.879+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=4 error=EOF
-time=2025-06-16T14:26:22.879+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=8 error=EOF
-time=2025-06-16T14:26:22.878+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=16
-time=2025-06-16T14:26:22.879+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=12
-time=2025-06-16T14:26:22.879+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=16 error=EOF
-time=2025-06-16T14:26:22.879+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=12 error=EOF
-time=2025-06-16T14:26:22.879+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=0 offset=0 length=1048576
-time=2025-06-16T14:26:22.879+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=0 expected_length=1048576
-time=2025-06-16T14:26:22.889+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=20
-time=2025-06-16T14:26:22.889+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=24
-time=2025-06-16T14:26:22.889+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=0 size_streamed=1048576
-time=2025-06-16T14:26:22.889+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=24
-time=2025-06-16T14:26:22.889+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=20
-time=2025-06-16T14:26:22.889+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=24 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.889+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=20 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.889+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=24 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=3 offset=3145728 length=1048576
-time=2025-06-16T14:26:22.889+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=20 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=1 offset=1048576 length=1048576
-time=2025-06-16T14:26:22.889+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=20 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=1 expected_length=1048576
-time=2025-06-16T14:26:22.889+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=24 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=3 expected_length=1048576
-time=2025-06-16T14:26:22.891+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=28
-time=2025-06-16T14:26:22.891+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=28
-time=2025-06-16T14:26:22.891+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=28 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.891+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=28 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=2 offset=2097152 length=1048576
-time=2025-06-16T14:26:22.891+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=28 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=2 expected_length=1048576
-time=2025-06-16T14:26:22.891+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=32
-time=2025-06-16T14:26:22.891+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=32
-time=2025-06-16T14:26:22.892+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=32 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.892+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=32 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=4 offset=4194304 length=1048576
-time=2025-06-16T14:26:22.892+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=32 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=4 expected_length=1048576
-time=2025-06-16T14:26:22.896+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=36
-time=2025-06-16T14:26:22.896+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=40
-time=2025-06-16T14:26:22.896+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=40
-time=2025-06-16T14:26:22.896+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=40 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.896+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=40 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=7 offset=7340032 length=1048576
-time=2025-06-16T14:26:22.896+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=36
-time=2025-06-16T14:26:22.896+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=36 error=EOF
-time=2025-06-16T14:26:22.896+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=40 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=7 expected_length=1048576
-time=2025-06-16T14:26:22.900+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=44
-time=2025-06-16T14:26:22.900+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=48
-time=2025-06-16T14:26:22.900+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=52
-time=2025-06-16T14:26:22.900+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=48
-time=2025-06-16T14:26:22.900+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=44
-time=2025-06-16T14:26:22.900+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=48 error=EOF
-time=2025-06-16T14:26:22.900+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=44 error=EOF
-time=2025-06-16T14:26:22.900+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=52
-time=2025-06-16T14:26:22.900+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=52 error=EOF
-time=2025-06-16T14:26:22.902+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=56
-time=2025-06-16T14:26:22.902+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=60
-time=2025-06-16T14:26:22.902+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=60
-time=2025-06-16T14:26:22.902+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=60 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.902+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=56
-time=2025-06-16T14:26:22.902+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=60 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=9 offset=9437184 length=1048576
-time=2025-06-16T14:26:22.902+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=56 error=EOF
-time=2025-06-16T14:26:22.902+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=60 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=9 expected_length=1048576
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=64
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=68
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=72
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=72
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=64
-time=2025-06-16T14:26:22.904+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=72 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=68
-time=2025-06-16T14:26:22.904+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=72 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=5 offset=5242880 length=1048576
-time=2025-06-16T14:26:22.904+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=64 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.904+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=68 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.904+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=64 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=5 offset=5242880 length=1048576
-time=2025-06-16T14:26:22.904+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=68 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=7 offset=7340032 length=1048576
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=72 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=5 expected_length=1048576
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=68 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=7 expected_length=1048576
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=64 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=5 expected_length=1048576
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=76
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=80
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=80
-time=2025-06-16T14:26:22.904+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=80 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.904+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=80 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=8 offset=8388608 length=1048576
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=80 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=8 expected_length=1048576
-time=2025-06-16T14:26:22.904+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=76
-time=2025-06-16T14:26:22.905+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=76 error=EOF
-time=2025-06-16T14:26:22.925+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=32 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=4 size_streamed=1048576
-time=2025-06-16T14:26:22.926+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=84
-time=2025-06-16T14:26:22.926+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=88
-time=2025-06-16T14:26:22.926+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=88
-time=2025-06-16T14:26:22.926+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=88 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.926+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=88 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=6 offset=6291456 length=1048576
-time=2025-06-16T14:26:22.926+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=88 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=6 expected_length=1048576
-time=2025-06-16T14:26:22.926+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=84
-time=2025-06-16T14:26:22.926+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=84 error=EOF
-time=2025-06-16T14:26:22.927+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=20 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=1 size_streamed=1048576
-time=2025-06-16T14:26:22.929+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=92
-time=2025-06-16T14:26:22.929+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=96
-time=2025-06-16T14:26:22.929+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=96
-time=2025-06-16T14:26:22.929+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=96 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.929+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=96 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=8 offset=8388608 length=1048576
-time=2025-06-16T14:26:22.929+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=96 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=8 expected_length=1048576
-time=2025-06-16T14:26:22.929+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=92
-time=2025-06-16T14:26:22.929+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=92 error=EOF
-time=2025-06-16T14:26:22.929+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=28 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=2 size_streamed=1048576
-time=2025-06-16T14:26:22.930+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=24 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=3 size_streamed=1048576
-time=2025-06-16T14:26:22.930+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=100
-time=2025-06-16T14:26:22.930+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=104
-time=2025-06-16T14:26:22.930+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=104
-time=2025-06-16T14:26:22.930+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=104 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.931+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=104 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=6 offset=6291456 length=1048576
-time=2025-06-16T14:26:22.931+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=100
-time=2025-06-16T14:26:22.931+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=104 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=6 expected_length=1048576
-time=2025-06-16T14:26:22.931+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=100 error=EOF
-time=2025-06-16T14:26:22.931+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=40 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=7 size_streamed=1048576
-time=2025-06-16T14:26:22.934+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=108
-time=2025-06-16T14:26:22.934+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=112
-time=2025-06-16T14:26:22.934+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=116
-time=2025-06-16T14:26:22.934+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=120
-time=2025-06-16T14:26:22.934+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=120
-time=2025-06-16T14:26:22.934+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=112
-time=2025-06-16T14:26:22.934+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=120 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.934+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=112 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.934+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=120 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=9 offset=9437184 length=1048576
-time=2025-06-16T14:26:22.934+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=112 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=9 offset=9437184 length=1048576
-time=2025-06-16T14:26:22.934+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=108
-time=2025-06-16T14:26:22.934+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=108 error=EOF
-time=2025-06-16T14:26:22.934+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=112 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=9 expected_length=1048576
-time=2025-06-16T14:26:22.934+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=116
-time=2025-06-16T14:26:22.934+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:33330 stream_id=116 error=EOF
-time=2025-06-16T14:26:22.934+02:00 level=DEBUG msg="Attempting to stream chunk data to client" agent_id=agent001 handler=ClientChunkRequest stream_id=120 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=9 expected_length=1048576
-time=2025-06-16T14:26:22.939+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=72 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=5 size_streamed=1048576
-time=2025-06-16T14:26:22.943+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=68 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=7 size_streamed=1048576
-time=2025-06-16T14:26:22.943+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=60 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=9 size_streamed=1048576
-time=2025-06-16T14:26:22.945+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=80 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=8 size_streamed=1048576
-time=2025-06-16T14:26:22.945+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=64 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=5 size_streamed=1048576
-time=2025-06-16T14:26:22.954+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=88 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=6 size_streamed=1048576
-time=2025-06-16T14:26:22.955+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=96 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=8 size_streamed=1048576
-time=2025-06-16T14:26:22.955+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=104 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=6 size_streamed=1048576
-time=2025-06-16T14:26:22.955+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=112 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=9 size_streamed=1048576
-time=2025-06-16T14:26:22.956+02:00 level=INFO msg="Successfully streamed chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=120 remote_addr=127.0.0.1:33330 file_id=testfile_10M.dat chunk_id=9 size_streamed=1048576
-time=2025-06-16T14:26:22.958+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent001 remote_addr=127.0.0.1:33330 error="Application error 0x0 (remote): connection manager shutdown"
-time=2025-06-16T14:26:22.958+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent001 remote_addr=127.0.0.1:33330
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Received signal, shutting down agent..." agent_id=agent001 signal=terminated
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Context cancelled, stopping ChunkServer listener..." agent_id=agent001
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Heartbeat loop stopping." agent_id=agent001
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Agent shutting down main process..." agent_id=agent001
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Closed agent connection to orchestrator." agent_id=agent001 subcomponent=agent_orch_comms
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="ChunkServer listener accept loop ending." agent_id=agent001 reason="context canceled"
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="ChunkServer Start goroutine finished." agent_id=agent001
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Agent shutdown complete." agent_id=agent001
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Closed agent connection to orchestrator." agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T14:54:45.342+02:00 level=INFO msg="qwrap agent starting up..." agent_id=agent001 listen_addr_config=localhost:8080 data_dir=/home/bradley/work/qwrap-ws/data/agents/agent001 orchestrator=localhost:7878
+time=2025-06-17T14:54:45.342+02:00 level=WARN msg="No TLS cert/key files provided for ChunkServer, generating self-signed (INSECURE)" agent_id=agent001
+time=2025-06-17T14:54:45.478+02:00 level=INFO msg="Successfully loaded inventory from disk" agent_id=agent001 component=inventory path=/home/bradley/work/qwrap-ws/data/agents/agent001/inventory.json
+time=2025-06-17T14:54:45.478+02:00 level=INFO msg="ChunkServer attempting to start..." agent_id=agent001
+time=2025-06-17T14:54:45.479+02:00 level=INFO msg="failed to sufficiently increase receive buffer size (was: 208 kiB, wanted: 7168 kiB, got: 416 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details."
+time=2025-06-17T14:54:45.479+02:00 level=INFO msg="ChunkServer started, listening" agent_id=agent001 address=127.0.0.1:8080
+time=2025-06-17T14:54:47.479+02:00 level=INFO msg="ChunkServer is listening on" agent_id=agent001 actual_address=127.0.0.1:8080
+time=2025-06-17T14:54:47.479+02:00 level=INFO msg="Agent attempting to connect to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms address=localhost:7878
+time=2025-06-17T14:54:47.485+02:00 level=INFO msg="Agent successfully connected to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms address=localhost:7878
+time=2025-06-17T14:54:47.485+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 subcomponent=agent_orch_comms stream_id=0 operation=register
+time=2025-06-17T14:54:47.487+02:00 level=INFO msg="Agent successfully registered with orchestrator" agent_id=agent001 reported_listen_addr=127.0.0.1:8080
+time=2025-06-17T14:54:47.487+02:00 level=INFO msg="Heartbeat interval set" agent_id=agent001 interval=10s
+time=2025-06-17T14:54:47.487+02:00 level=INFO msg="Agent is running. Press Ctrl+C to exit." agent_id=agent001
+time=2025-06-17T14:54:47.487+02:00 level=INFO msg="Heartbeat loop started" agent_id=agent001
+time=2025-06-17T14:54:53.424+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent001 remote_addr=127.0.0.1:36829
+time=2025-06-17T14:54:53.424+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent001 remote_addr=127.0.0.1:36829
+time=2025-06-17T14:54:53.424+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:36829 stream_id=0
+time=2025-06-17T14:54:53.424+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:36829 stream_id=0
+time=2025-06-17T14:54:53.424+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:36829 stream_id=0 purpose=GET_FILE_METADATA_REQUEST
+time=2025-06-17T14:54:53.424+02:00 level=INFO msg="Processing GetFileMetadataRequest" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:36829 request_id=orch-meta-null-agent001 file_id=null
+time=2025-06-17T14:54:53.424+02:00 level=DEBUG msg="Found portions for file" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:36829 file_id=null num_portions=0
+time=2025-06-17T14:54:53.424+02:00 level=WARN msg="File not found for metadata" agent_id=agent001 file_id=null path=/home/bradley/work/qwrap-ws/data/agents/agent001/null
+time=2025-06-17T14:54:53.424+02:00 level=WARN msg="Could not get global file metadata" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:36829 file_id=null error="file not found on agent"
+time=2025-06-17T14:54:53.424+02:00 level=INFO msg="GetFileMetadataResponse sent" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:36829 request_id=orch-meta-null-agent001 found=false num_portions=0
+time=2025-06-17T14:54:53.424+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent001 remote_addr=127.0.0.1:36829 error="Application error 0x0 (remote): metadata query session finished"
+time=2025-06-17T14:54:53.424+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent001 remote_addr=127.0.0.1:36829
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Received signal, shutting down agent..." agent_id=agent001 signal=terminated
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Context cancelled, stopping ChunkServer listener..." agent_id=agent001
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Heartbeat loop stopping." agent_id=agent001
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Agent shutting down main process..." agent_id=agent001
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Closed agent connection to orchestrator." agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="ChunkServer listener accept loop ending." agent_id=agent001 reason="context canceled"
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="ChunkServer Start goroutine finished." agent_id=agent001
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Agent shutdown complete." agent_id=agent001
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Closed agent connection to orchestrator." agent_id=agent001 subcomponent=agent_orch_comms

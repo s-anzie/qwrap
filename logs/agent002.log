@@ -1,69 +1,35 @@
-time=2025-06-16T14:26:15.816+02:00 level=INFO msg="qwrap agent starting up..." agent_id=agent002 listen_addr_config=localhost:8081 data_dir=/home/bradley/work/qwrap-ws/agent_data/agent002 orchestrator=localhost:7878
-time=2025-06-16T14:26:15.816+02:00 level=WARN msg="No TLS cert/key files provided for ChunkServer, generating self-signed (INSECURE)" agent_id=agent002
-time=2025-06-16T14:26:15.990+02:00 level=INFO msg="Loaded hardcoded file portions for agent002" agent_id=agent002 component=portion_inventory file_id=testfile_10M.dat
-time=2025-06-16T14:26:15.990+02:00 level=INFO msg="ChunkServer attempting to start..." agent_id=agent002
-time=2025-06-16T14:26:15.990+02:00 level=INFO msg="failed to sufficiently increase receive buffer size (was: 208 kiB, wanted: 7168 kiB, got: 416 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details."
-time=2025-06-16T14:26:15.990+02:00 level=INFO msg="ChunkServer started, listening" agent_id=agent002 address=127.0.0.1:8081
-time=2025-06-16T14:26:17.991+02:00 level=INFO msg="ChunkServer is listening on" agent_id=agent002 actual_address=127.0.0.1:8081
-time=2025-06-16T14:26:17.991+02:00 level=INFO msg="Agent attempting to connect to orchestrator" agent_id=agent002 subcomponent=agent_orch_comms address=localhost:7878
-time=2025-06-16T14:26:17.998+02:00 level=INFO msg="Agent successfully connected to orchestrator" agent_id=agent002 subcomponent=agent_orch_comms address=localhost:7878
-time=2025-06-16T14:26:17.998+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent002 subcomponent=agent_orch_comms stream_id=0 operation=register
-time=2025-06-16T14:26:17.999+02:00 level=INFO msg="Agent successfully registered with orchestrator" agent_id=agent002 reported_listen_addr=127.0.0.1:8081
-time=2025-06-16T14:26:17.999+02:00 level=INFO msg="Heartbeat interval set" agent_id=agent002 interval=10s
-time=2025-06-16T14:26:17.999+02:00 level=INFO msg="Agent is running. Press Ctrl+C to exit." agent_id=agent002
-time=2025-06-16T14:26:17.999+02:00 level=INFO msg="Heartbeat loop started" agent_id=agent002
-time=2025-06-16T14:26:22.870+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent002 remote_addr=127.0.0.1:33362
-time=2025-06-16T14:26:22.870+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent002 remote_addr=127.0.0.1:33362
-time=2025-06-16T14:26:22.870+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent002 remote_addr=127.0.0.1:33362 stream_id=0
-time=2025-06-16T14:26:22.870+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent002 remote_addr=127.0.0.1:33362 stream_id=0
-time=2025-06-16T14:26:22.870+02:00 level=INFO msg="Received stream purpose" agent_id=agent002 remote_addr=127.0.0.1:33362 stream_id=0 purpose=GET_FILE_METADATA_REQUEST
-time=2025-06-16T14:26:22.870+02:00 level=INFO msg="Processing GetFileMetadataRequest" agent_id=agent002 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:33362 request_id=orch-meta-testfile_10M.dat-agent002 file_id=testfile_10M.dat
-time=2025-06-16T14:26:22.870+02:00 level=DEBUG msg="Found portions for file" agent_id=agent002 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:33362 file_id=testfile_10M.dat num_portions=1
-time=2025-06-16T14:26:22.871+02:00 level=WARN msg="File not found for metadata" agent_id=agent002 file_id=testfile_10M.dat path=/home/bradley/work/qwrap-ws/agent_data/agent002/testfile_10M.dat
-time=2025-06-16T14:26:22.871+02:00 level=WARN msg="Could not get global file metadata" agent_id=agent002 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:33362 file_id=testfile_10M.dat error="file not found on agent"
-time=2025-06-16T14:26:22.871+02:00 level=INFO msg="GetFileMetadataResponse sent" agent_id=agent002 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:33362 request_id=orch-meta-testfile_10M.dat-agent002 found=true num_portions=1
-time=2025-06-16T14:26:22.871+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent002 remote_addr=127.0.0.1:33362 error="Application error 0x0 (remote): metadata query session finished"
-time=2025-06-16T14:26:22.871+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent002 remote_addr=127.0.0.1:33362
-time=2025-06-16T14:26:22.885+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent002 remote_addr=127.0.0.1:47400
-time=2025-06-16T14:26:22.885+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent002 remote_addr=127.0.0.1:47400
-time=2025-06-16T14:26:22.887+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=0
-time=2025-06-16T14:26:22.887+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=4
-time=2025-06-16T14:26:22.887+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=8
-time=2025-06-16T14:26:22.887+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=8
-time=2025-06-16T14:26:22.887+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=0
-time=2025-06-16T14:26:22.887+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=4
-time=2025-06-16T14:26:22.887+02:00 level=INFO msg="Received stream purpose" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=8 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.887+02:00 level=INFO msg="Received stream purpose" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=4 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.887+02:00 level=INFO msg="Received stream purpose" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=0 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.887+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent002 handler=ClientChunkRequest stream_id=8 remote_addr=127.0.0.1:47400 file_id=testfile_10M.dat chunk_id=7 offset=7340032 length=1048576
-time=2025-06-16T14:26:22.887+02:00 level=WARN msg="File not found for metadata" agent_id=agent002 file_id=testfile_10M.dat path=/home/bradley/work/qwrap-ws/agent_data/agent002/testfile_10M.dat
-time=2025-06-16T14:26:22.887+02:00 level=ERROR msg="Failed to get file metadata for chunk validation" agent_id=agent002 handler=ClientChunkRequest stream_id=8 remote_addr=127.0.0.1:47400 file_id=testfile_10M.dat error="file not found on agent"
-time=2025-06-16T14:26:22.887+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent002 handler=ClientChunkRequest stream_id=4 remote_addr=127.0.0.1:47400 file_id=testfile_10M.dat chunk_id=8 offset=8388608 length=1048576
-time=2025-06-16T14:26:22.887+02:00 level=WARN msg="File not found for metadata" agent_id=agent002 file_id=testfile_10M.dat path=/home/bradley/work/qwrap-ws/agent_data/agent002/testfile_10M.dat
-time=2025-06-16T14:26:22.887+02:00 level=ERROR msg="Failed to get file metadata for chunk validation" agent_id=agent002 handler=ClientChunkRequest stream_id=4 remote_addr=127.0.0.1:47400 file_id=testfile_10M.dat error="file not found on agent"
-time=2025-06-16T14:26:22.887+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent002 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:47400 file_id=testfile_10M.dat chunk_id=5 offset=5242880 length=1048576
-time=2025-06-16T14:26:22.887+02:00 level=WARN msg="File not found for metadata" agent_id=agent002 file_id=testfile_10M.dat path=/home/bradley/work/qwrap-ws/agent_data/agent002/testfile_10M.dat
-time=2025-06-16T14:26:22.887+02:00 level=ERROR msg="Failed to get file metadata for chunk validation" agent_id=agent002 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:47400 file_id=testfile_10M.dat error="file not found on agent"
-time=2025-06-16T14:26:22.890+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=12
-time=2025-06-16T14:26:22.890+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=16
-time=2025-06-16T14:26:22.890+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=16
-time=2025-06-16T14:26:22.890+02:00 level=INFO msg="Received stream purpose" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=16 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.890+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent002 handler=ClientChunkRequest stream_id=16 remote_addr=127.0.0.1:47400 file_id=testfile_10M.dat chunk_id=9 offset=9437184 length=1048576
-time=2025-06-16T14:26:22.890+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=12
-time=2025-06-16T14:26:22.890+02:00 level=WARN msg="File not found for metadata" agent_id=agent002 file_id=testfile_10M.dat path=/home/bradley/work/qwrap-ws/agent_data/agent002/testfile_10M.dat
-time=2025-06-16T14:26:22.890+02:00 level=ERROR msg="Failed to get file metadata for chunk validation" agent_id=agent002 handler=ClientChunkRequest stream_id=16 remote_addr=127.0.0.1:47400 file_id=testfile_10M.dat error="file not found on agent"
-time=2025-06-16T14:26:22.890+02:00 level=INFO msg="Received stream purpose" agent_id=agent002 remote_addr=127.0.0.1:47400 stream_id=12 purpose=CHUNK_REQUEST
-time=2025-06-16T14:26:22.890+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent002 handler=ClientChunkRequest stream_id=12 remote_addr=127.0.0.1:47400 file_id=testfile_10M.dat chunk_id=6 offset=6291456 length=1048576
-time=2025-06-16T14:26:22.890+02:00 level=WARN msg="File not found for metadata" agent_id=agent002 file_id=testfile_10M.dat path=/home/bradley/work/qwrap-ws/agent_data/agent002/testfile_10M.dat
-time=2025-06-16T14:26:22.890+02:00 level=ERROR msg="Failed to get file metadata for chunk validation" agent_id=agent002 handler=ClientChunkRequest stream_id=12 remote_addr=127.0.0.1:47400 file_id=testfile_10M.dat error="file not found on agent"
-time=2025-06-16T14:26:22.958+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent002 remote_addr=127.0.0.1:47400 error="Application error 0x0 (remote): connection manager shutdown"
-time=2025-06-16T14:26:22.958+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent002 remote_addr=127.0.0.1:47400
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Received signal, shutting down agent..." agent_id=agent002 signal=terminated
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Context cancelled, stopping ChunkServer listener..." agent_id=agent002
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Heartbeat loop stopping." agent_id=agent002
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Agent shutting down main process..." agent_id=agent002
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="ChunkServer listener accept loop ending." agent_id=agent002 reason="context canceled"
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="ChunkServer Start goroutine finished." agent_id=agent002
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Closed agent connection to orchestrator." agent_id=agent002 subcomponent=agent_orch_comms
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Agent shutdown complete." agent_id=agent002
-time=2025-06-16T14:26:23.018+02:00 level=INFO msg="Closed agent connection to orchestrator." agent_id=agent002 subcomponent=agent_orch_comms
+time=2025-06-17T14:54:46.362+02:00 level=INFO msg="qwrap agent starting up..." agent_id=agent002 listen_addr_config=localhost:8081 data_dir=/home/bradley/work/qwrap-ws/data/agents/agent002 orchestrator=localhost:7878
+time=2025-06-17T14:54:46.362+02:00 level=WARN msg="No TLS cert/key files provided for ChunkServer, generating self-signed (INSECURE)" agent_id=agent002
+time=2025-06-17T14:54:47.015+02:00 level=INFO msg="Successfully loaded inventory from disk" agent_id=agent002 component=inventory path=/home/bradley/work/qwrap-ws/data/agents/agent002/inventory.json
+time=2025-06-17T14:54:47.015+02:00 level=INFO msg="ChunkServer attempting to start..." agent_id=agent002
+time=2025-06-17T14:54:47.016+02:00 level=INFO msg="failed to sufficiently increase receive buffer size (was: 208 kiB, wanted: 7168 kiB, got: 416 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details."
+time=2025-06-17T14:54:47.016+02:00 level=INFO msg="ChunkServer started, listening" agent_id=agent002 address=127.0.0.1:8081
+time=2025-06-17T14:54:49.015+02:00 level=INFO msg="ChunkServer is listening on" agent_id=agent002 actual_address=127.0.0.1:8081
+time=2025-06-17T14:54:49.015+02:00 level=INFO msg="Agent attempting to connect to orchestrator" agent_id=agent002 subcomponent=agent_orch_comms address=localhost:7878
+time=2025-06-17T14:54:49.019+02:00 level=INFO msg="Agent successfully connected to orchestrator" agent_id=agent002 subcomponent=agent_orch_comms address=localhost:7878
+time=2025-06-17T14:54:49.019+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent002 subcomponent=agent_orch_comms stream_id=0 operation=register
+time=2025-06-17T14:54:49.020+02:00 level=INFO msg="Agent successfully registered with orchestrator" agent_id=agent002 reported_listen_addr=127.0.0.1:8081
+time=2025-06-17T14:54:49.020+02:00 level=INFO msg="Heartbeat interval set" agent_id=agent002 interval=10s
+time=2025-06-17T14:54:49.020+02:00 level=INFO msg="Agent is running. Press Ctrl+C to exit." agent_id=agent002
+time=2025-06-17T14:54:49.020+02:00 level=INFO msg="Heartbeat loop started" agent_id=agent002
+time=2025-06-17T14:54:53.424+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent002 remote_addr=127.0.0.1:44096
+time=2025-06-17T14:54:53.424+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent002 remote_addr=127.0.0.1:44096
+time=2025-06-17T14:54:53.424+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent002 remote_addr=127.0.0.1:44096 stream_id=0
+time=2025-06-17T14:54:53.424+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent002 remote_addr=127.0.0.1:44096 stream_id=0
+time=2025-06-17T14:54:53.424+02:00 level=INFO msg="Received stream purpose" agent_id=agent002 remote_addr=127.0.0.1:44096 stream_id=0 purpose=GET_FILE_METADATA_REQUEST
+time=2025-06-17T14:54:53.424+02:00 level=INFO msg="Processing GetFileMetadataRequest" agent_id=agent002 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:44096 request_id=orch-meta-null-agent002 file_id=null
+time=2025-06-17T14:54:53.424+02:00 level=DEBUG msg="Found portions for file" agent_id=agent002 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:44096 file_id=null num_portions=0
+time=2025-06-17T14:54:53.424+02:00 level=WARN msg="File not found for metadata" agent_id=agent002 file_id=null path=/home/bradley/work/qwrap-ws/data/agents/agent002/null
+time=2025-06-17T14:54:53.424+02:00 level=WARN msg="Could not get global file metadata" agent_id=agent002 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:44096 file_id=null error="file not found on agent"
+time=2025-06-17T14:54:53.424+02:00 level=INFO msg="GetFileMetadataResponse sent" agent_id=agent002 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:44096 request_id=orch-meta-null-agent002 found=false num_portions=0
+time=2025-06-17T14:54:53.424+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent002 remote_addr=127.0.0.1:44096 error="Application error 0x0 (remote): metadata query session finished"
+time=2025-06-17T14:54:53.424+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent002 remote_addr=127.0.0.1:44096
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Received signal, shutting down agent..." agent_id=agent002 signal=terminated
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Context cancelled, stopping ChunkServer listener..." agent_id=agent002
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Heartbeat loop stopping." agent_id=agent002
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="ChunkServer listener accept loop ending." agent_id=agent002 reason="context canceled"
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="ChunkServer Start goroutine finished." agent_id=agent002
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Agent shutting down main process..." agent_id=agent002
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Closed agent connection to orchestrator." agent_id=agent002 subcomponent=agent_orch_comms
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Agent shutdown complete." agent_id=agent002
+time=2025-06-17T14:54:53.482+02:00 level=INFO msg="Closed agent connection to orchestrator." agent_id=agent002 subcomponent=agent_orch_comms

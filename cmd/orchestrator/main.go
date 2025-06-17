@@ -38,6 +38,7 @@ func main() {
 	listenAddr := flag.String("listen", "0.0.0.0:7878", "Address for Orchestrator to listen on")
 	certFile := flag.String("cert", "", "TLS certificate file (generates self-signed if empty)")
 	keyFile := flag.String("key", "", "TLS key file (generates self-signed if empty)")
+	dbPath := flag.String("dbpath", "orchestrator.db", "Path for the StateManager database file")
 	logLevelStr := flag.String("loglevel", "info", "Log level (debug, info, warn, error)")
 	flag.Parse()
 
@@ -78,9 +79,22 @@ func main() {
 	}()
 
 	// 1. Initialiser StateManager
-	smConfig := statemanager.StateManagerConfig{Logger: logger.With("subsystem", "statemanager")}
-	stateMgr := statemanager.NewStateManager(smConfig)
-	logger.Info("StateManager initialized (in-memory)")
+	smConfig := statemanager.StateManagerConfig{
+		Logger: logger.With("subsystem", "statemanager"),
+		DBPath: *dbPath,
+	}
+	stateMgr, err := statemanager.NewStateManager(smConfig)
+	if err != nil {
+		logger.Error("Failed to initialize StateManager", "error", err)
+		os.Exit(1)
+	}
+	defer func() {
+		logger.Info("Closing StateManager...")
+		if err := stateMgr.Close(); err != nil {
+			logger.Error("Failed to close StateManager cleanly", "error", err)
+		}
+	}()
+	logger.Info("StateManager initialized")
 	// TODO: stateMgr.LoadState(ctx) // Pour la persistance future
 
 	// 2. Initialiser Scheduler

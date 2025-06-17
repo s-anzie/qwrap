@@ -2,6 +2,7 @@ package statemanager
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"sync"
@@ -10,23 +11,66 @@ import (
 	"qwrap/pkg/qwrappb" // Votre package protobuf généré
 
 	"github.com/google/uuid" // Pour générer des IDs uniques
+	"go.etcd.io/bbolt"
 )
 
 type stateManagerImpl struct {
 	mu        sync.RWMutex
 	transfers map[string]*TransferState // Clé: PlanID
 	config    StateManagerConfig
-	// (Futur) db *badger.DB ou *bolt.DB
+	db        *bbolt.DB // Handle de la base de données BoltDB
 	// (Futur) wal *os.File
 }
 
-// NewStateManager crée une nouvelle instance de StateManager (en mémoire pour l'instant).
-func NewStateManager(config StateManagerConfig) StateManager {
+// NewStateManager crée une nouvelle instance de StateManager.
+func NewStateManager(config StateManagerConfig) (StateManager, error) {
 	config.setDefaults()
-	return &stateManagerImpl{
+
+	if config.DBPath == "" {
+		return nil, errors.New("DBPath must be specified in StateManagerConfig")
+	}
+
+	db, err := bbolt.Open(config.DBPath, 0600, &bbolt.Options{Timeout: 1 * time.Second})
+	if err != nil {
+		return nil, fmt.Errorf("failed to open bolt database at %s: %w", config.DBPath, err)
+	}
+
+	sm := &stateManagerImpl{
 		transfers: make(map[string]*TransferState),
 		config:    config,
+		db:        db,
 	}
+
+	// Ensure the 'transfers' bucket exists
+	err = db.Update(func(tx *bbolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte("transfers"))
+		return err
+	})
+	if err != nil {
+		db.Close() // Close the db if we can't create the bucket
+		return nil, fmt.Errorf("failed to create 'transfers' bucket: %w", err)
+	}
+
+	// Load existing state from the database
+	if err := sm.loadStateFromDB(); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("failed to load existing state from db: %w", err)
+	}
+
+	config.Logger.Info("StateManager initialized with BoltDB persistence", "db_path", config.DBPath)
+
+	return sm, nil
+}
+
+func (sm *stateManagerImpl) Close() error {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	if sm.db != nil {
+		sm.config.Logger.Info("Closing BoltDB database.")
+		return sm.db.Close()
+	}
+	return nil
 }
 
 // --- Gestion des Transferts ---
@@ -70,11 +114,28 @@ func (sm *stateManagerImpl) CreateTransfer(ctx context.Context, clientReq *qwrap
 		return "", nil, errors.New("no valid files to process in transfer request")
 	}
 
-	sm.transfers[planID] = ts
-	sm.config.Logger.Info("New transfer state created", "plan_id", planID, "client_request_id", clientReq.RequestId)
+	// Persist the new transfer state to the database before adding to memory
+	jsonData, err := json.Marshal(ts)
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to serialize transfer state for plan %s: %w", planID, err)
+	}
 
-	// Retourner une copie pour éviter les modifications externes
-	// Pour l'instant, on retourne le pointeur, mais pour la persistance, on travaillerait avec des copies.
+	err = sm.db.Update(func(tx *bbolt.Tx) error {
+		b := tx.Bucket([]byte("transfers"))
+		// This check is for safety, bucket should exist from NewStateManager
+		if b == nil {
+			return fmt.Errorf("transfers bucket not found")
+		}
+		return b.Put([]byte(planID), jsonData)
+	})
+
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to persist transfer state for plan %s: %w", planID, err)
+	}
+
+	sm.transfers[planID] = ts
+	sm.config.Logger.Info("New transfer state created and persisted", "plan_id", planID, "client_request_id", clientReq.RequestId)
+
 	return planID, ts, nil
 }
 
@@ -106,19 +167,19 @@ func (sm *stateManagerImpl) UpdateTransferStatus(ctx context.Context, planID str
 	ts.Status = status
 	ts.LastUpdateTime = time.Now()
 
-	// if status == StatusFailed && len(errorMessage) > 0 {
-	// 	ts.ErrorMessage = errorMessage[0]
-	// }
-	// if status == StatusCompleted {
-	//  ts.CompletionTime = ts.LastUpdateTime
-	// }
+	// Persist the updated state
+	if err := sm.saveTransferState(ts); err != nil {
+		// If persistence fails, should we roll back the in-memory change?
+		// For now, we log the error and the in-memory state might be ahead of persisted state.
+		ts.Status = oldStatus // Rollback in-memory change
+		return fmt.Errorf("failed to persist status update for plan %s: %w", planID, err)
+	}
 
-	sm.config.Logger.Info("Transfer status updated",
+	sm.config.Logger.Info("Transfer status updated and persisted",
 		"plan_id", planID,
 		"old_status", oldStatus,
 		"new_status", status,
 	)
-	// (Futur) Écrire dans le WAL ici
 	return nil
 }
 
@@ -184,8 +245,16 @@ func (sm *stateManagerImpl) LinkSchedulerPlan(ctx context.Context, planID string
 		fileState.Chunks[chunkID] = chunkState
 	}
 	ts.LastUpdateTime = time.Now()
-	sm.config.Logger.Info("Scheduler plan linked to transfer", "plan_id", planID, "num_assignments", len(schedulerPlan.ChunkAssignments))
-	// (Futur) Écrire dans le WAL ici
+
+	// Persist the updated state
+	if err := sm.saveTransferState(ts); err != nil {
+		// This is a critical failure. The in-memory state is now significantly different from the persisted state.
+		// A real-world system might need a more robust recovery or rollback mechanism.
+		// For now, we will log the error and return it, leaving the system in a potentially inconsistent state.
+		return fmt.Errorf("CRITICAL: failed to persist linked scheduler plan for plan %s: %w", planID, err)
+	}
+
+	sm.config.Logger.Info("Scheduler plan linked and persisted to transfer", "plan_id", planID, "num_assignments", len(schedulerPlan.ChunkAssignments))
 	return nil
 }
 
@@ -268,7 +337,12 @@ func (sm *stateManagerImpl) UpdateChunkStatus(ctx context.Context, planID string
 		// ou si un chunk critique échoue toutes ses tentatives de réassignation.
 	}
 
-	// (Futur) Écrire dans le WAL ici
+	// Persist the changes
+	if err := sm.saveTransferState(ts); err != nil {
+		// Log the error, but the in-memory state has already changed. This could lead to inconsistency.
+		return fmt.Errorf("failed to persist chunk status update for plan %s: %w", planID, err)
+	}
+
 	return nil
 }
 
@@ -317,8 +391,66 @@ func (sm *stateManagerImpl) ReassignChunk(ctx context.Context, planID string, fi
 		"num_replicas", len(chunkState.AssignedAgents),
 	)
 	ts.LastUpdateTime = time.Now()
-	// (Futur) Écrire dans le WAL ici
+
+	// Persist the changes
+	if err := sm.saveTransferState(ts); err != nil {
+		return fmt.Errorf("failed to persist chunk reassignment for plan %s: %w", planID, err)
+	}
+
 	return nil
+}
+
+// saveTransferState serializes and persists a single TransferState to the database.
+// This method assumes the caller has already acquired the necessary locks.
+func (sm *stateManagerImpl) saveTransferState(ts *TransferState) error {
+	if ts == nil || ts.PlanID == "" {
+		return errors.New("cannot save nil or empty planID transfer state")
+	}
+
+	jsonData, err := json.Marshal(ts)
+	if err != nil {
+		return fmt.Errorf("failed to serialize transfer state for plan %s: %w", ts.PlanID, err)
+	}
+
+	return sm.db.Update(func(tx *bbolt.Tx) error {
+		b := tx.Bucket([]byte("transfers"))
+		return b.Put([]byte(ts.PlanID), jsonData)
+	})
+}
+
+// loadStateFromDB iterates over all transfers in the DB and loads them into memory.
+func (sm *stateManagerImpl) loadStateFromDB() error {
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
+
+	return sm.db.View(func(tx *bbolt.Tx) error {
+		b := tx.Bucket([]byte("transfers"))
+		if b == nil {
+			// Bucket not existing is not an error, just means no transfers yet.
+			sm.config.Logger.Info("'transfers' bucket not found, assuming new database.")
+			return nil
+		}
+
+		count := 0
+		err := b.ForEach(func(k, v []byte) error {
+			var ts TransferState
+			if err := json.Unmarshal(v, &ts); err != nil {
+				// Log the corrupted entry but continue loading others
+				sm.config.Logger.Error("Failed to deserialize transfer state from DB", "plan_id", string(k), "error", err)
+				return nil // Continue to next item
+			}
+			sm.transfers[ts.PlanID] = &ts
+			count++
+			return nil
+		})
+
+		if err != nil {
+			return fmt.Errorf("error while iterating over transfers bucket: %w", err)
+		}
+
+		sm.config.Logger.Info("Successfully loaded state for transfers from DB", "count", count)
+		return nil
+	})
 }
 
 func (sm *stateManagerImpl) GetChunkState(ctx context.Context, planID string, fileID string, chunkID uint64) (*ChunkState, error) {

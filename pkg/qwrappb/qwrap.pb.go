@@ -861,6 +861,9 @@ type FilePortionInfo struct {
 	ChunkIndexStart uint64 `protobuf:"varint,6,opt,name=chunk_index_start,json=chunkIndexStart,proto3" json:"chunk_index_start,omitempty"`
 	// Index global du dernier chunk couvert par cette portion.
 	ChunkIndexEnd uint64 `protobuf:"varint,7,opt,name=chunk_index_end,json=chunkIndexEnd,proto3" json:"chunk_index_end,omitempty"`
+	// Chemin d'accès local au fichier/chunk sur le disque de l'agent.
+	// Ce chemin est relatif au répertoire de données de base de l'agent.
+	PathOnDisk    string `protobuf:"bytes,8,opt,name=path_on_disk,json=pathOnDisk,proto3" json:"path_on_disk,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -942,6 +945,13 @@ func (x *FilePortionInfo) GetChunkIndexEnd() uint64 {
 		return x.ChunkIndexEnd
 	}
 	return 0
+}
+
+func (x *FilePortionInfo) GetPathOnDisk() string {
+	if x != nil {
+		return x.PathOnDisk
+	}
+	return ""
 }
 
 type GetFileMetadataResponse struct {
@@ -1792,7 +1802,7 @@ const file_proto_qwrap_proto_rawDesc = "" +
 	"\x16GetFileMetadataRequest\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tR\trequestId\x12\x17\n" +
-	"\afile_id\x18\x02 \x01(\tR\x06fileId\"\xa2\x02\n" +
+	"\afile_id\x18\x02 \x01(\tR\x06fileId\"\xc4\x02\n" +
 	"\x0fFilePortionInfo\x12$\n" +
 	"\x0eglobal_file_id\x18\x01 \x01(\tR\fglobalFileId\x12\x16\n" +
 	"\x06offset\x18\x02 \x01(\x03R\x06offset\x12\x1d\n" +
@@ -1802,7 +1812,9 @@ const file_proto_qwrap_proto_rawDesc = "" +
 	"chunk_size\x18\x04 \x01(\x03R\tchunkSize\x12+\n" +
 	"\x0flast_chunk_size\x18\x05 \x01(\x03H\x00R\rlastChunkSize\x88\x01\x01\x12*\n" +
 	"\x11chunk_index_start\x18\x06 \x01(\x04R\x0fchunkIndexStart\x12&\n" +
-	"\x0fchunk_index_end\x18\a \x01(\x04R\rchunkIndexEndB\x12\n" +
+	"\x0fchunk_index_end\x18\a \x01(\x04R\rchunkIndexEnd\x12 \n" +
+	"\fpath_on_disk\x18\b \x01(\tR\n" +
+	"pathOnDiskB\x12\n" +
 	"\x10_last_chunk_size\"\xc6\x02\n" +
 	"\x17GetFileMetadataResponse\x12\x1d\n" +
 	"\n" +

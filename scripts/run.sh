@@ -8,7 +8,7 @@
 PROJECT_ROOT=$(pwd) # Suppose que le script est lancé depuis la racine du projet qwrap
 BIN_DIR="${PROJECT_ROOT}/bin"
 LOG_DIR="${PROJECT_ROOT}/logs"
-AGENT_DATA_BASE_DIR="${PROJECT_ROOT}/agent_data"
+AGENT_DATA_BASE_DIR="${PROJECT_ROOT}/data/agents"
 
 ORCHESTRATOR_LOG="${LOG_DIR}/orchestrator.log"
 CLIENT_LOG="${LOG_DIR}/client.log"
@@ -17,10 +17,9 @@ ORCHESTRATOR_ADDR="localhost:7878"
 NUM_AGENTS=3
 AGENT_BASE_PORT=8080 # Agent1 sur 8080, Agent2 sur 8081, etc.
 
-# Fichier de test à créer et télécharger
-TEST_FILE_NAME="testfile_10M.dat"
-TEST_FILE_SIZE_MB=10
-DOWNLOAD_DEST_FILE="${PROJECT_ROOT}/downloaded_output_${TEST_FILE_NAME}"
+# Fichier de test à télécharger
+TEST_FILE_NAME="sirene.mp4"
+DOWNLOAD_DEST_FILE="${PROJECT_ROOT}/downloaded_${TEST_FILE_NAME}"
 
 # Options de débogage (debug, info, warn, error)
 LOG_LEVEL="debug"
@@ -100,21 +99,7 @@ for i in $(seq 1 ${NUM_AGENTS}); do
     rm -f "${AGENT_LOG}" # Supprimer l'ancien log
     echo "Démarrage de l'Agent ${AGENT_ID} sur ${AGENT_LISTEN_ADDR}, data dans ${AGENT_DATA_DIR}..."
 
-    # Créer le fichier de test pour cet agent (seulement pour le premier agent pour ce scénario)
-    if [ "$i" -eq 1 ]; then
-        TEST_FILE_PATH_AGENT="${AGENT_DATA_DIR}/${TEST_FILE_NAME}"
-        echo "Création du fichier de test ${TEST_FILE_NAME} (${TEST_FILE_SIZE_MB}MB) dans ${AGENT_DATA_DIR}..."
-        # Vérifier si dd est disponible
-        if command -v dd &> /dev/null; then
-            dd if=/dev/urandom of="${TEST_FILE_PATH_AGENT}" bs=1M count=${TEST_FILE_SIZE_MB} status=none \
-                || { echo "ERREUR: Échec de création du fichier de test pour ${AGENT_ID}"; cleanup; exit 1; }
-        else
-            # Fallback simple si dd n'est pas là (crée un fichier plus petit)
-            echo "dd non trouvé, création d'un fichier de test plus petit."
-            head -c $((TEST_FILE_SIZE_MB * 1024 * 512)) < /dev/urandom > "${TEST_FILE_PATH_AGENT}" # Moitié de la taille pour être plus rapide
-        fi
-        echo "Fichier de test créé : ${TEST_FILE_PATH_AGENT}"
-    fi
+
 
     "${BIN_DIR}/agent" \
         -id "${AGENT_ID}" \
@@ -138,7 +123,25 @@ echo # Ligne vide
 
 # 3. Démarrer le Client pour télécharger le fichier
 echo "Démarrage du Client pour télécharger ${TEST_FILE_NAME}..."
-CLIENT_FILE_ID="${TEST_FILE_NAME}" 
+
+# Extraire les informations du fichier depuis l'inventaire du premier agent
+AGENT_INVENTORY_FILE="${AGENT_DATA_BASE_DIR}/agent001/inventory.json"
+if [ ! -f "$AGENT_INVENTORY_FILE" ]; then
+    echo "ERREUR: Fichier d'inventaire introuvable pour l'agent001: ${AGENT_INVENTORY_FILE}"
+    cleanup
+    exit 1
+fi
+
+CLIENT_FILE_ID=$(jq -r '.files[0].global_file_id' "$AGENT_INVENTORY_FILE")
+FILE_SIZE=$(jq -r '.files[0].file_size' "$AGENT_INVENTORY_FILE")
+
+if [ -z "$CLIENT_FILE_ID" ] || [ -z "$FILE_SIZE" ]; then
+    echo "ERREUR: Impossible de lire file_id ou file_size depuis ${AGENT_INVENTORY_FILE}"
+    cleanup
+    exit 1
+fi
+
+echo "Demande de transfert pour le fichier: ${CLIENT_FILE_ID} (Taille: ${FILE_SIZE} octets)"
 
 rm -f "${DOWNLOAD_DEST_FILE}" # Supprimer l'ancien fichier de destination
 rm -f "${CLIENT_LOG}"      # Supprimer l'ancien log client
@@ -159,16 +162,15 @@ if [ ${CLIENT_EXIT_CODE} -eq 0 ]; then
     echo "SUCCÈS: Le Client a terminé avec le code de sortie 0."
     echo "Fichier téléchargé dans ${DOWNLOAD_DEST_FILE}"
     if [ -f "${DOWNLOAD_DEST_FILE}" ]; then
-        EXPECTED_BYTES=$((TEST_FILE_SIZE_MB * 1024 * 1024))
         # Adapter la commande stat pour macOS si nécessaire
         if [[ "$OSTYPE" == "darwin"* ]]; then
             ACTUAL_BYTES=$(stat -f%z "${DOWNLOAD_DEST_FILE}")
         else
             ACTUAL_BYTES=$(stat -c%s "${DOWNLOAD_DEST_FILE}")
         fi
-        echo "Taille attendue: ${EXPECTED_BYTES} octets"
+        echo "Taille attendue: ${FILE_SIZE} octets"
         echo "Taille réelle  : ${ACTUAL_BYTES} octets"
-        if [ "${ACTUAL_BYTES}" -eq "${EXPECTED_BYTES}" ]; then
+        if [ "${ACTUAL_BYTES}" -eq "${FILE_SIZE}" ]; then
             echo "VÉRIFICATION DE TAILLE: OK"
         else
             echo "VÉRIFICATION DE TAILLE: ÉCHEC"
