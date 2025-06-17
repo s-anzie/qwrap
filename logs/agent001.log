@@ -1,33 +1,654 @@
-time=2025-06-17T16:18:14.893+02:00 level=INFO msg="qwrap agent starting up..." agent_id=agent001 listen_addr_config=localhost:8080 data_dir=/home/bradley/work/qwrap-ws/data/agents/agent001 orchestrator=localhost:7878
-time=2025-06-17T16:18:14.893+02:00 level=WARN msg="No TLS cert/key files provided for ChunkServer, generating self-signed (INSECURE)" agent_id=agent001
-time=2025-06-17T16:18:15.305+02:00 level=INFO msg="Successfully loaded inventory from disk" agent_id=agent001 component=inventory path=/home/bradley/work/qwrap-ws/data/agents/agent001/inventory.json
-time=2025-06-17T16:18:15.305+02:00 level=INFO msg="ChunkServer attempting to start..." agent_id=agent001
-time=2025-06-17T16:18:15.305+02:00 level=INFO msg="failed to sufficiently increase receive buffer size (was: 208 kiB, wanted: 7168 kiB, got: 416 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details."
-time=2025-06-17T16:18:15.305+02:00 level=INFO msg="ChunkServer started, listening" agent_id=agent001 address=127.0.0.1:8080
-time=2025-06-17T16:18:17.306+02:00 level=INFO msg="ChunkServer is listening on" agent_id=agent001 actual_address=127.0.0.1:8080
-time=2025-06-17T16:18:17.306+02:00 level=INFO msg="Agent attempting to connect to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms address=localhost:7878
-time=2025-06-17T16:18:17.311+02:00 level=INFO msg="Agent successfully connected to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms address=localhost:7878
-time=2025-06-17T16:18:17.311+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 subcomponent=agent_orch_comms stream_id=0 operation=register
-time=2025-06-17T16:18:17.312+02:00 level=INFO msg="Agent successfully registered with orchestrator" agent_id=agent001 reported_listen_addr=127.0.0.1:8080
-time=2025-06-17T16:18:17.312+02:00 level=INFO msg="Heartbeat interval set" agent_id=agent001 interval=10s
-time=2025-06-17T16:18:17.312+02:00 level=INFO msg="Agent is running. Press Ctrl+C to exit." agent_id=agent001
-time=2025-06-17T16:18:17.312+02:00 level=INFO msg="Heartbeat loop started" agent_id=agent001
-time=2025-06-17T16:18:22.935+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent001 remote_addr=127.0.0.1:55055
-time=2025-06-17T16:18:22.935+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent001 remote_addr=127.0.0.1:55055
-time=2025-06-17T16:18:22.935+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55055 stream_id=0
-time=2025-06-17T16:18:22.935+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55055 stream_id=0
-time=2025-06-17T16:18:22.936+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:55055 stream_id=0 purpose=GET_FILE_METADATA_REQUEST
-time=2025-06-17T16:18:22.936+02:00 level=INFO msg="Processing GetFileMetadataRequest" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:55055 request_id=orch-meta-sirene.mp4-agent001 file_id=sirene.mp4
-time=2025-06-17T16:18:22.936+02:00 level=INFO msg="Found file in inventory for metadata request" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:55055 file_id=sirene.mp4
-time=2025-06-17T16:18:22.936+02:00 level=INFO msg="GetFileMetadataResponse sent" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:55055 request_id=orch-meta-sirene.mp4-agent001 found=true
-time=2025-06-17T16:18:22.937+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent001 remote_addr=127.0.0.1:55055 error="Application error 0x0 (remote): metadata query session finished"
-time=2025-06-17T16:18:22.938+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent001 remote_addr=127.0.0.1:55055
-time=2025-06-17T16:18:23.009+02:00 level=INFO msg="Received signal, shutting down agent..." agent_id=agent001 signal=terminated
-time=2025-06-17T16:18:23.009+02:00 level=INFO msg="Context cancelled, stopping ChunkServer listener..." agent_id=agent001
-time=2025-06-17T16:18:23.009+02:00 level=INFO msg="Heartbeat loop stopping." agent_id=agent001
-time=2025-06-17T16:18:23.009+02:00 level=INFO msg="Agent shutting down main process..." agent_id=agent001
-time=2025-06-17T16:18:23.009+02:00 level=INFO msg="Closed agent connection to orchestrator." agent_id=agent001 subcomponent=agent_orch_comms
-time=2025-06-17T16:18:23.009+02:00 level=INFO msg="ChunkServer listener accept loop ending." agent_id=agent001 reason="context canceled"
-time=2025-06-17T16:18:23.009+02:00 level=INFO msg="ChunkServer Start goroutine finished." agent_id=agent001
-time=2025-06-17T16:18:23.009+02:00 level=INFO msg="Agent shutdown complete." agent_id=agent001
-time=2025-06-17T16:18:23.009+02:00 level=INFO msg="Closed agent connection to orchestrator." agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:09:19.190+02:00 level=INFO msg="qwrap agent starting up..." agent_id=agent001 listen_addr_config=localhost:8080 data_dir=/home/bradley/work/qwrap-ws/data/agents/agent001 orchestrator=localhost:7878
+time=2025-06-17T17:09:19.190+02:00 level=WARN msg="No TLS cert/key files provided for ChunkServer, generating self-signed (INSECURE)" agent_id=agent001
+time=2025-06-17T17:09:19.444+02:00 level=INFO msg="Successfully loaded inventory from disk" agent_id=agent001 component=inventory path=/home/bradley/work/qwrap-ws/data/agents/agent001/inventory.json
+time=2025-06-17T17:09:19.444+02:00 level=INFO msg="ChunkServer attempting to start..." agent_id=agent001
+time=2025-06-17T17:09:19.445+02:00 level=INFO msg="failed to sufficiently increase receive buffer size (was: 208 kiB, wanted: 7168 kiB, got: 416 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details."
+time=2025-06-17T17:09:19.445+02:00 level=INFO msg="ChunkServer started, listening" agent_id=agent001 address=127.0.0.1:8080
+time=2025-06-17T17:09:21.445+02:00 level=INFO msg="ChunkServer is listening on" agent_id=agent001 actual_address=127.0.0.1:8080
+time=2025-06-17T17:09:21.445+02:00 level=INFO msg="Agent attempting to connect to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms address=localhost:7878
+time=2025-06-17T17:09:21.450+02:00 level=INFO msg="Agent successfully connected to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms address=localhost:7878
+time=2025-06-17T17:09:21.450+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 subcomponent=agent_orch_comms stream_id=0 operation=register
+time=2025-06-17T17:09:21.451+02:00 level=INFO msg="Agent successfully registered with orchestrator" agent_id=agent001 reported_listen_addr=127.0.0.1:8080
+time=2025-06-17T17:09:21.451+02:00 level=INFO msg="Heartbeat interval set" agent_id=agent001 interval=10s
+time=2025-06-17T17:09:21.451+02:00 level=INFO msg="Agent is running. Press Ctrl+C to exit." agent_id=agent001
+time=2025-06-17T17:09:21.451+02:00 level=INFO msg="Heartbeat loop started" agent_id=agent001
+time=2025-06-17T17:09:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:09:37.490+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent001 remote_addr=127.0.0.1:54547
+time=2025-06-17T17:09:37.490+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent001 remote_addr=127.0.0.1:54547
+time=2025-06-17T17:09:37.490+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:54547 stream_id=0
+time=2025-06-17T17:09:37.490+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:54547 stream_id=0
+time=2025-06-17T17:09:37.490+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:54547 stream_id=0 purpose=GET_FILE_METADATA_REQUEST
+time=2025-06-17T17:09:37.490+02:00 level=INFO msg="Processing GetFileMetadataRequest" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:54547 request_id=orch-meta-sirene.mp4-agent001 file_id=sirene.mp4
+time=2025-06-17T17:09:37.490+02:00 level=INFO msg="Found file in inventory for metadata request" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:54547 file_id=sirene.mp4
+time=2025-06-17T17:09:37.490+02:00 level=INFO msg="GetFileMetadataResponse sent" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:54547 request_id=orch-meta-sirene.mp4-agent001 found=true
+time=2025-06-17T17:09:37.491+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent001 remote_addr=127.0.0.1:54547 error="Application error 0x0 (remote): metadata query session finished"
+time=2025-06-17T17:09:37.493+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent001 remote_addr=127.0.0.1:54547
+time=2025-06-17T17:09:37.518+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent001 remote_addr=127.0.0.1:42636
+time=2025-06-17T17:09:37.518+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent001 remote_addr=127.0.0.1:42636
+time=2025-06-17T17:09:37.519+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=0
+time=2025-06-17T17:09:37.519+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=4
+time=2025-06-17T17:09:37.519+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=8
+time=2025-06-17T17:09:37.519+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=12
+time=2025-06-17T17:09:37.519+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=12
+time=2025-06-17T17:09:37.519+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=12 error=EOF
+time=2025-06-17T17:09:37.519+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=0
+time=2025-06-17T17:09:37.519+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=0 purpose=CHUNK_REQUEST
+time=2025-06-17T17:09:37.519+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:42636 file_id=sirene.mp4 chunk_id=0 offset=0 length=1048576
+time=2025-06-17T17:09:37.519+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=4
+time=2025-06-17T17:09:37.519+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=4 error=EOF
+time=2025-06-17T17:09:37.519+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=8
+time=2025-06-17T17:09:37.519+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=8 error=EOF
+time=2025-06-17T17:09:37.530+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:42636 bytes_sent=1048576
+time=2025-06-17T17:09:37.536+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=16
+time=2025-06-17T17:09:37.536+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=16
+time=2025-06-17T17:09:37.536+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=16 purpose=CHUNK_REQUEST
+time=2025-06-17T17:09:37.536+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=16 remote_addr=127.0.0.1:42636 file_id=sirene.mp4 chunk_id=6 offset=6291456 length=1048576
+time=2025-06-17T17:09:37.538+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=20
+time=2025-06-17T17:09:37.538+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=24
+time=2025-06-17T17:09:37.538+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=24
+time=2025-06-17T17:09:37.538+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=24 purpose=CHUNK_REQUEST
+time=2025-06-17T17:09:37.538+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=20
+time=2025-06-17T17:09:37.538+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=20 purpose=CHUNK_REQUEST
+time=2025-06-17T17:09:37.538+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=20 remote_addr=127.0.0.1:42636 file_id=sirene.mp4 chunk_id=9 offset=9437184 length=1048576
+time=2025-06-17T17:09:37.538+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=24 remote_addr=127.0.0.1:42636 file_id=sirene.mp4 chunk_id=3 offset=3145728 length=1048576
+time=2025-06-17T17:09:37.560+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=16 remote_addr=127.0.0.1:42636 bytes_sent=1048576
+time=2025-06-17T17:09:37.564+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=28
+time=2025-06-17T17:09:37.564+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=32
+time=2025-06-17T17:09:37.564+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=32
+time=2025-06-17T17:09:37.564+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=32 purpose=CHUNK_REQUEST
+time=2025-06-17T17:09:37.564+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=32 remote_addr=127.0.0.1:42636 file_id=sirene.mp4 chunk_id=12 offset=12582912 length=1048576
+time=2025-06-17T17:09:37.564+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=28
+time=2025-06-17T17:09:37.565+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=28 error=EOF
+time=2025-06-17T17:09:37.569+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=36
+time=2025-06-17T17:09:37.569+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=40
+time=2025-06-17T17:09:37.569+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=44
+time=2025-06-17T17:09:37.569+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=48
+time=2025-06-17T17:09:37.569+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=48
+time=2025-06-17T17:09:37.569+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=48 purpose=CHUNK_REQUEST
+time=2025-06-17T17:09:37.569+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=40
+time=2025-06-17T17:09:37.569+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=48 remote_addr=127.0.0.1:42636 file_id=sirene.mp4 chunk_id=18 offset=18874368 length=1048576
+time=2025-06-17T17:09:37.569+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=40 purpose=CHUNK_REQUEST
+time=2025-06-17T17:09:37.569+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=40 remote_addr=127.0.0.1:42636 file_id=sirene.mp4 chunk_id=15 offset=15728640 length=1048576
+time=2025-06-17T17:09:37.569+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=36
+time=2025-06-17T17:09:37.569+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=44
+time=2025-06-17T17:09:37.569+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=36 error=EOF
+time=2025-06-17T17:09:37.569+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=44 error=EOF
+time=2025-06-17T17:09:37.578+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=52
+time=2025-06-17T17:09:37.578+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=56
+time=2025-06-17T17:09:37.578+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=56
+time=2025-06-17T17:09:37.578+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=56 purpose=CHUNK_REQUEST
+time=2025-06-17T17:09:37.578+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=56 remote_addr=127.0.0.1:42636 file_id=sirene.mp4 chunk_id=21 offset=22020096 length=1048576
+time=2025-06-17T17:09:37.578+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=52
+time=2025-06-17T17:09:37.578+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=52 error=EOF
+time=2025-06-17T17:09:37.580+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=24 remote_addr=127.0.0.1:42636 bytes_sent=1048576
+time=2025-06-17T17:09:37.582+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=20 remote_addr=127.0.0.1:42636 bytes_sent=1048576
+time=2025-06-17T17:09:37.584+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=60
+time=2025-06-17T17:09:37.584+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=64
+time=2025-06-17T17:09:37.584+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=64
+time=2025-06-17T17:09:37.585+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=64 purpose=CHUNK_REQUEST
+time=2025-06-17T17:09:37.585+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=64 remote_addr=127.0.0.1:42636 file_id=sirene.mp4 chunk_id=24 offset=25165824 length=1048576
+time=2025-06-17T17:09:37.585+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=60
+time=2025-06-17T17:09:37.585+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=60 error=EOF
+time=2025-06-17T17:09:37.594+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=32 remote_addr=127.0.0.1:42636 bytes_sent=1048576
+time=2025-06-17T17:09:37.595+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=68
+time=2025-06-17T17:09:37.595+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=72
+time=2025-06-17T17:09:37.595+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=72
+time=2025-06-17T17:09:37.595+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=72 purpose=CHUNK_REQUEST
+time=2025-06-17T17:09:37.595+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=72 remote_addr=127.0.0.1:42636 file_id=sirene.mp4 chunk_id=27 offset=28311552 length=1048576
+time=2025-06-17T17:09:37.595+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=68
+time=2025-06-17T17:09:37.595+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:42636 stream_id=68 error=EOF
+time=2025-06-17T17:09:37.600+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=48 remote_addr=127.0.0.1:42636 bytes_sent=1048576
+time=2025-06-17T17:09:37.600+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=40 remote_addr=127.0.0.1:42636 bytes_sent=1048576
+time=2025-06-17T17:09:37.605+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=56 remote_addr=127.0.0.1:42636 bytes_sent=1048576
+time=2025-06-17T17:09:37.605+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=64 remote_addr=127.0.0.1:42636 bytes_sent=1048576
+time=2025-06-17T17:09:37.607+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=72 remote_addr=127.0.0.1:42636 bytes_sent=1048576
+time=2025-06-17T17:09:41.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:09:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:10:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:10:07.634+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent001 remote_addr=127.0.0.1:42636 error="timeout: no recent network activity"
+time=2025-06-17T17:10:07.634+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent001 remote_addr=127.0.0.1:42636
+time=2025-06-17T17:10:11.452+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:10:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:10:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:10:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:10:51.461+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:11:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:11:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:11:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:11:31.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:11:41.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:11:51.455+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:12:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:12:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:12:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:12:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:12:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:12:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:13:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:13:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:13:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:13:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:13:41.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:13:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:14:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:14:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:14:19.560+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent001 remote_addr=127.0.0.1:54980
+time=2025-06-17T17:14:19.560+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent001 remote_addr=127.0.0.1:54980
+time=2025-06-17T17:14:19.560+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:54980 stream_id=0
+time=2025-06-17T17:14:19.560+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:54980 stream_id=0
+time=2025-06-17T17:14:19.560+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:54980 stream_id=0 purpose=GET_FILE_METADATA_REQUEST
+time=2025-06-17T17:14:19.560+02:00 level=INFO msg="Processing GetFileMetadataRequest" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:54980 request_id=orch-meta-sirene.mp4-agent001 file_id=sirene.mp4
+time=2025-06-17T17:14:19.560+02:00 level=INFO msg="Found file in inventory for metadata request" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:54980 file_id=sirene.mp4
+time=2025-06-17T17:14:19.560+02:00 level=INFO msg="GetFileMetadataResponse sent" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:54980 request_id=orch-meta-sirene.mp4-agent001 found=true
+time=2025-06-17T17:14:19.561+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent001 remote_addr=127.0.0.1:54980 error="Application error 0x0 (remote): metadata query session finished"
+time=2025-06-17T17:14:19.561+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent001 remote_addr=127.0.0.1:54980
+time=2025-06-17T17:14:19.588+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent001 remote_addr=127.0.0.1:41181
+time=2025-06-17T17:14:19.588+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent001 remote_addr=127.0.0.1:41181
+time=2025-06-17T17:14:19.588+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=0
+time=2025-06-17T17:14:19.588+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=4
+time=2025-06-17T17:14:19.588+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=4
+time=2025-06-17T17:14:19.588+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=4 error=EOF
+time=2025-06-17T17:14:19.588+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=0
+time=2025-06-17T17:14:19.588+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=0 purpose=CHUNK_REQUEST
+time=2025-06-17T17:14:19.588+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=8
+time=2025-06-17T17:14:19.588+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=12
+time=2025-06-17T17:14:19.589+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=12
+time=2025-06-17T17:14:19.589+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:41181 file_id=sirene.mp4 chunk_id=0 offset=0 length=1048576
+time=2025-06-17T17:14:19.589+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=8
+time=2025-06-17T17:14:19.589+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=8 error=EOF
+time=2025-06-17T17:14:19.589+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=12 error=EOF
+time=2025-06-17T17:14:19.592+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:41181 bytes_sent=1048576
+time=2025-06-17T17:14:19.600+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=16
+time=2025-06-17T17:14:19.600+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=20
+time=2025-06-17T17:14:19.600+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=24
+time=2025-06-17T17:14:19.600+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=24
+time=2025-06-17T17:14:19.600+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=24 purpose=CHUNK_REQUEST
+time=2025-06-17T17:14:19.600+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=24 remote_addr=127.0.0.1:41181 file_id=sirene.mp4 chunk_id=3 offset=3145728 length=1048576
+time=2025-06-17T17:14:19.601+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=16
+time=2025-06-17T17:14:19.601+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=16 purpose=CHUNK_REQUEST
+time=2025-06-17T17:14:19.601+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=16 remote_addr=127.0.0.1:41181 file_id=sirene.mp4 chunk_id=9 offset=9437184 length=1048576
+time=2025-06-17T17:14:19.601+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=20
+time=2025-06-17T17:14:19.601+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=20 purpose=CHUNK_REQUEST
+time=2025-06-17T17:14:19.601+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=20 remote_addr=127.0.0.1:41181 file_id=sirene.mp4 chunk_id=6 offset=6291456 length=1048576
+time=2025-06-17T17:14:19.615+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=20 remote_addr=127.0.0.1:41181 bytes_sent=1048576
+time=2025-06-17T17:14:19.615+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=24 remote_addr=127.0.0.1:41181 bytes_sent=1048576
+time=2025-06-17T17:14:19.616+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=28
+time=2025-06-17T17:14:19.616+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=32
+time=2025-06-17T17:14:19.616+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=28
+time=2025-06-17T17:14:19.616+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=28 error=EOF
+time=2025-06-17T17:14:19.617+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=32
+time=2025-06-17T17:14:19.617+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=32 purpose=CHUNK_REQUEST
+time=2025-06-17T17:14:19.617+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=32 remote_addr=127.0.0.1:41181 file_id=sirene.mp4 chunk_id=12 offset=12582912 length=1048576
+time=2025-06-17T17:14:19.620+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=36
+time=2025-06-17T17:14:19.620+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=40
+time=2025-06-17T17:14:19.620+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=40
+time=2025-06-17T17:14:19.620+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=40 purpose=CHUNK_REQUEST
+time=2025-06-17T17:14:19.620+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=40 remote_addr=127.0.0.1:41181 file_id=sirene.mp4 chunk_id=15 offset=15728640 length=1048576
+time=2025-06-17T17:14:19.620+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=16 remote_addr=127.0.0.1:41181 bytes_sent=1048576
+time=2025-06-17T17:14:19.620+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=36
+time=2025-06-17T17:14:19.620+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=36 error=EOF
+time=2025-06-17T17:14:19.624+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=44
+time=2025-06-17T17:14:19.624+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=48
+time=2025-06-17T17:14:19.624+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=48
+time=2025-06-17T17:14:19.624+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=48 purpose=CHUNK_REQUEST
+time=2025-06-17T17:14:19.624+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=48 remote_addr=127.0.0.1:41181 file_id=sirene.mp4 chunk_id=18 offset=18874368 length=1048576
+time=2025-06-17T17:14:19.624+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=44
+time=2025-06-17T17:14:19.624+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=44 error=EOF
+time=2025-06-17T17:14:19.627+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=32 remote_addr=127.0.0.1:41181 bytes_sent=1048576
+time=2025-06-17T17:14:19.628+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=52
+time=2025-06-17T17:14:19.628+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=56
+time=2025-06-17T17:14:19.628+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=56
+time=2025-06-17T17:14:19.628+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=56 purpose=CHUNK_REQUEST
+time=2025-06-17T17:14:19.628+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=56 remote_addr=127.0.0.1:41181 file_id=sirene.mp4 chunk_id=21 offset=22020096 length=1048576
+time=2025-06-17T17:14:19.628+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=52
+time=2025-06-17T17:14:19.628+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=52 error=EOF
+time=2025-06-17T17:14:19.631+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=40 remote_addr=127.0.0.1:41181 bytes_sent=1048576
+time=2025-06-17T17:14:19.634+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=60
+time=2025-06-17T17:14:19.634+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=64
+time=2025-06-17T17:14:19.634+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=64
+time=2025-06-17T17:14:19.634+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=64 purpose=CHUNK_REQUEST
+time=2025-06-17T17:14:19.634+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=64 remote_addr=127.0.0.1:41181 file_id=sirene.mp4 chunk_id=24 offset=25165824 length=1048576
+time=2025-06-17T17:14:19.635+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=60
+time=2025-06-17T17:14:19.635+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=60 error=EOF
+time=2025-06-17T17:14:19.636+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=48 remote_addr=127.0.0.1:41181 bytes_sent=1048576
+time=2025-06-17T17:14:19.637+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=56 remote_addr=127.0.0.1:41181 bytes_sent=1048576
+time=2025-06-17T17:14:19.639+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=64 remote_addr=127.0.0.1:41181 bytes_sent=1048576
+time=2025-06-17T17:14:19.640+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=68
+time=2025-06-17T17:14:19.640+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=72
+time=2025-06-17T17:14:19.640+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=72
+time=2025-06-17T17:14:19.640+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=68
+time=2025-06-17T17:14:19.640+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=72 purpose=CHUNK_REQUEST
+time=2025-06-17T17:14:19.640+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:41181 stream_id=68 error=EOF
+time=2025-06-17T17:14:19.640+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=72 remote_addr=127.0.0.1:41181 file_id=sirene.mp4 chunk_id=27 offset=28311552 length=1048576
+time=2025-06-17T17:14:19.645+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=72 remote_addr=127.0.0.1:41181 bytes_sent=1048576
+time=2025-06-17T17:14:21.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:14:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:14:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:14:49.651+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent001 remote_addr=127.0.0.1:41181 error="timeout: no recent network activity"
+time=2025-06-17T17:14:49.651+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent001 remote_addr=127.0.0.1:41181
+time=2025-06-17T17:14:51.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:15:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:15:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:15:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:15:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:15:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:15:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:16:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:16:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:16:21.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:16:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:16:41.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:16:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:17:01.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:17:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:17:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:17:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:17:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:17:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:18:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:18:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:18:21.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:18:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:18:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:18:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:19:01.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:19:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:19:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:19:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:19:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:19:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:20:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:20:07.419+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent001 remote_addr=127.0.0.1:39194
+time=2025-06-17T17:20:07.419+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent001 remote_addr=127.0.0.1:39194
+time=2025-06-17T17:20:07.419+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:39194 stream_id=0
+time=2025-06-17T17:20:07.419+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:39194 stream_id=0
+time=2025-06-17T17:20:07.419+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:39194 stream_id=0 purpose=GET_FILE_METADATA_REQUEST
+time=2025-06-17T17:20:07.419+02:00 level=INFO msg="Processing GetFileMetadataRequest" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:39194 request_id=orch-meta-sirene.mp4-agent001 file_id=sirene.mp4
+time=2025-06-17T17:20:07.419+02:00 level=INFO msg="Found file in inventory for metadata request" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:39194 file_id=sirene.mp4
+time=2025-06-17T17:20:07.419+02:00 level=INFO msg="GetFileMetadataResponse sent" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:39194 request_id=orch-meta-sirene.mp4-agent001 found=true
+time=2025-06-17T17:20:07.419+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent001 remote_addr=127.0.0.1:39194 error="Application error 0x0 (remote): metadata query session finished"
+time=2025-06-17T17:20:07.419+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent001 remote_addr=127.0.0.1:39194
+time=2025-06-17T17:20:07.441+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent001 remote_addr=127.0.0.1:51420
+time=2025-06-17T17:20:07.441+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent001 remote_addr=127.0.0.1:51420
+time=2025-06-17T17:20:07.441+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=0
+time=2025-06-17T17:20:07.441+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=4
+time=2025-06-17T17:20:07.441+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=8
+time=2025-06-17T17:20:07.441+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=12
+time=2025-06-17T17:20:07.441+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=12
+time=2025-06-17T17:20:07.441+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=0
+time=2025-06-17T17:20:07.441+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=12 error=EOF
+time=2025-06-17T17:20:07.441+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=0 purpose=CHUNK_REQUEST
+time=2025-06-17T17:20:07.441+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=4
+time=2025-06-17T17:20:07.441+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=4 error=EOF
+time=2025-06-17T17:20:07.441+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=8
+time=2025-06-17T17:20:07.441+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=8 error=EOF
+time=2025-06-17T17:20:07.442+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:51420 file_id=sirene.mp4 chunk_id=0 offset=0 length=1048576
+time=2025-06-17T17:20:07.446+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:51420 bytes_sent=1048576
+time=2025-06-17T17:20:07.453+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=16
+time=2025-06-17T17:20:07.453+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=16
+time=2025-06-17T17:20:07.453+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=16 purpose=CHUNK_REQUEST
+time=2025-06-17T17:20:07.453+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=16 remote_addr=127.0.0.1:51420 file_id=sirene.mp4 chunk_id=3 offset=3145728 length=1048576
+time=2025-06-17T17:20:07.455+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=20
+time=2025-06-17T17:20:07.455+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=24
+time=2025-06-17T17:20:07.455+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=24
+time=2025-06-17T17:20:07.455+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=24 purpose=CHUNK_REQUEST
+time=2025-06-17T17:20:07.455+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=20
+time=2025-06-17T17:20:07.455+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=20 purpose=CHUNK_REQUEST
+time=2025-06-17T17:20:07.455+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=20 remote_addr=127.0.0.1:51420 file_id=sirene.mp4 chunk_id=6 offset=6291456 length=1048576
+time=2025-06-17T17:20:07.456+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=24 remote_addr=127.0.0.1:51420 file_id=sirene.mp4 chunk_id=9 offset=9437184 length=1048576
+time=2025-06-17T17:20:07.464+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=16 remote_addr=127.0.0.1:51420 bytes_sent=1048576
+time=2025-06-17T17:20:07.465+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=28
+time=2025-06-17T17:20:07.465+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=32
+time=2025-06-17T17:20:07.465+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=28
+time=2025-06-17T17:20:07.465+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=28 error=EOF
+time=2025-06-17T17:20:07.465+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=20 remote_addr=127.0.0.1:51420 bytes_sent=1048576
+time=2025-06-17T17:20:07.466+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=24 remote_addr=127.0.0.1:51420 bytes_sent=1048576
+time=2025-06-17T17:20:07.466+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=32
+time=2025-06-17T17:20:07.466+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=32 purpose=CHUNK_REQUEST
+time=2025-06-17T17:20:07.466+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=32 remote_addr=127.0.0.1:51420 file_id=sirene.mp4 chunk_id=12 offset=12582912 length=1048576
+time=2025-06-17T17:20:07.469+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=36
+time=2025-06-17T17:20:07.469+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=40
+time=2025-06-17T17:20:07.469+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=40
+time=2025-06-17T17:20:07.469+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=40 purpose=CHUNK_REQUEST
+time=2025-06-17T17:20:07.469+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=40 remote_addr=127.0.0.1:51420 file_id=sirene.mp4 chunk_id=15 offset=15728640 length=1048576
+time=2025-06-17T17:20:07.469+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=36
+time=2025-06-17T17:20:07.469+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=36 error=EOF
+time=2025-06-17T17:20:07.477+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=44
+time=2025-06-17T17:20:07.477+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=48
+time=2025-06-17T17:20:07.477+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=48
+time=2025-06-17T17:20:07.477+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=48 purpose=CHUNK_REQUEST
+time=2025-06-17T17:20:07.477+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=48 remote_addr=127.0.0.1:51420 file_id=sirene.mp4 chunk_id=18 offset=18874368 length=1048576
+time=2025-06-17T17:20:07.477+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=44
+time=2025-06-17T17:20:07.477+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=44 error=EOF
+time=2025-06-17T17:20:07.481+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=52
+time=2025-06-17T17:20:07.481+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=56
+time=2025-06-17T17:20:07.481+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=56
+time=2025-06-17T17:20:07.481+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=56 purpose=CHUNK_REQUEST
+time=2025-06-17T17:20:07.481+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=56 remote_addr=127.0.0.1:51420 file_id=sirene.mp4 chunk_id=21 offset=22020096 length=1048576
+time=2025-06-17T17:20:07.481+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=52
+time=2025-06-17T17:20:07.481+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=52 error=EOF
+time=2025-06-17T17:20:07.482+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=32 remote_addr=127.0.0.1:51420 bytes_sent=1048576
+time=2025-06-17T17:20:07.484+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=60
+time=2025-06-17T17:20:07.484+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=64
+time=2025-06-17T17:20:07.484+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=64
+time=2025-06-17T17:20:07.484+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=64 purpose=CHUNK_REQUEST
+time=2025-06-17T17:20:07.484+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=64 remote_addr=127.0.0.1:51420 file_id=sirene.mp4 chunk_id=24 offset=25165824 length=1048576
+time=2025-06-17T17:20:07.485+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=60
+time=2025-06-17T17:20:07.485+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=60 error=EOF
+time=2025-06-17T17:20:07.489+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=40 remote_addr=127.0.0.1:51420 bytes_sent=1048576
+time=2025-06-17T17:20:07.491+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=68
+time=2025-06-17T17:20:07.491+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=72
+time=2025-06-17T17:20:07.491+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=72
+time=2025-06-17T17:20:07.491+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=72 purpose=CHUNK_REQUEST
+time=2025-06-17T17:20:07.491+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=72 remote_addr=127.0.0.1:51420 file_id=sirene.mp4 chunk_id=27 offset=28311552 length=1048576
+time=2025-06-17T17:20:07.491+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=68
+time=2025-06-17T17:20:07.491+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:51420 stream_id=68 error=EOF
+time=2025-06-17T17:20:07.501+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=48 remote_addr=127.0.0.1:51420 bytes_sent=1048576
+time=2025-06-17T17:20:07.502+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=64 remote_addr=127.0.0.1:51420 bytes_sent=1048576
+time=2025-06-17T17:20:07.502+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=56 remote_addr=127.0.0.1:51420 bytes_sent=1048576
+time=2025-06-17T17:20:07.504+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=72 remote_addr=127.0.0.1:51420 bytes_sent=1048576
+time=2025-06-17T17:20:11.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:20:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:20:31.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:20:37.507+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent001 remote_addr=127.0.0.1:51420 error="timeout: no recent network activity"
+time=2025-06-17T17:20:37.507+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent001 remote_addr=127.0.0.1:51420
+time=2025-06-17T17:20:41.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:20:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:21:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:21:11.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:21:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:21:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:21:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:21:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:22:01.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:22:11.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:22:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:22:31.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:22:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:22:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:23:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:23:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:23:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:23:31.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:23:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:23:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:24:01.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:24:11.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:24:21.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:24:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:24:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:24:51.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:25:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:25:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:25:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:25:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:25:41.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:25:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:26:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:26:06.463+02:00 level=WARN msg="Failed to send heartbeat" agent_id=agent001 error="context deadline exceeded"
+time=2025-06-17T17:26:11.452+02:00 level=INFO msg="Agent attempting to connect to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms address=localhost:7878
+time=2025-06-17T17:26:11.456+02:00 level=INFO msg="Agent successfully connected to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms address=localhost:7878
+time=2025-06-17T17:26:21.455+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:26:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:26:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:26:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:27:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:27:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:27:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:27:31.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:27:41.452+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:27:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:28:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:28:11.452+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:28:21.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:28:31.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:28:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:28:51.452+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:29:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:29:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:29:17.452+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent001 remote_addr=127.0.0.1:37616
+time=2025-06-17T17:29:17.452+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent001 remote_addr=127.0.0.1:37616
+time=2025-06-17T17:29:17.453+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:37616 stream_id=0
+time=2025-06-17T17:29:17.453+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:37616 stream_id=0
+time=2025-06-17T17:29:17.453+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:37616 stream_id=0 purpose=GET_FILE_METADATA_REQUEST
+time=2025-06-17T17:29:17.453+02:00 level=INFO msg="Processing GetFileMetadataRequest" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:37616 request_id=orch-meta-sirene.mp4-agent001 file_id=sirene.mp4
+time=2025-06-17T17:29:17.453+02:00 level=INFO msg="Found file in inventory for metadata request" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:37616 file_id=sirene.mp4
+time=2025-06-17T17:29:17.453+02:00 level=INFO msg="GetFileMetadataResponse sent" agent_id=agent001 handler=GetFileMetadataRequest stream_id=0 remote_addr=127.0.0.1:37616 request_id=orch-meta-sirene.mp4-agent001 found=true
+time=2025-06-17T17:29:17.454+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent001 remote_addr=127.0.0.1:37616 error="Application error 0x0 (remote): metadata query session finished"
+time=2025-06-17T17:29:17.454+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent001 remote_addr=127.0.0.1:37616
+time=2025-06-17T17:29:17.471+02:00 level=INFO msg="Accepted new QUIC connection" agent_id=agent001 remote_addr=127.0.0.1:55688
+time=2025-06-17T17:29:17.471+02:00 level=DEBUG msg="Agent handling new connection" agent_id=agent001 remote_addr=127.0.0.1:55688
+time=2025-06-17T17:29:17.471+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=0
+time=2025-06-17T17:29:17.471+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=4
+time=2025-06-17T17:29:17.471+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=4
+time=2025-06-17T17:29:17.471+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=8
+time=2025-06-17T17:29:17.471+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=4 error=EOF
+time=2025-06-17T17:29:17.471+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=8
+time=2025-06-17T17:29:17.471+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=0
+time=2025-06-17T17:29:17.471+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=8 error=EOF
+time=2025-06-17T17:29:17.471+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=0 purpose=CHUNK_REQUEST
+time=2025-06-17T17:29:17.472+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=12
+time=2025-06-17T17:29:17.472+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:55688 file_id=sirene.mp4 chunk_id=0 offset=0 length=1048576
+time=2025-06-17T17:29:17.472+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=12
+time=2025-06-17T17:29:17.472+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=12 error=EOF
+time=2025-06-17T17:29:17.476+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=0 remote_addr=127.0.0.1:55688 bytes_sent=1048576
+time=2025-06-17T17:29:17.487+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=16
+time=2025-06-17T17:29:17.487+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=20
+time=2025-06-17T17:29:17.487+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=24
+time=2025-06-17T17:29:17.487+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=24
+time=2025-06-17T17:29:17.487+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=24 purpose=CHUNK_REQUEST
+time=2025-06-17T17:29:17.487+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=24 remote_addr=127.0.0.1:55688 file_id=sirene.mp4 chunk_id=9 offset=9437184 length=1048576
+time=2025-06-17T17:29:17.487+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=16
+time=2025-06-17T17:29:17.487+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=16 purpose=CHUNK_REQUEST
+time=2025-06-17T17:29:17.487+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=16 remote_addr=127.0.0.1:55688 file_id=sirene.mp4 chunk_id=6 offset=6291456 length=1048576
+time=2025-06-17T17:29:17.487+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=20
+time=2025-06-17T17:29:17.487+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=20 purpose=CHUNK_REQUEST
+time=2025-06-17T17:29:17.487+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=20 remote_addr=127.0.0.1:55688 file_id=sirene.mp4 chunk_id=3 offset=3145728 length=1048576
+time=2025-06-17T17:29:17.508+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=28
+time=2025-06-17T17:29:17.508+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=32
+time=2025-06-17T17:29:17.508+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=32
+time=2025-06-17T17:29:17.508+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=32 purpose=CHUNK_REQUEST
+time=2025-06-17T17:29:17.508+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=32 remote_addr=127.0.0.1:55688 file_id=sirene.mp4 chunk_id=12 offset=12582912 length=1048576
+time=2025-06-17T17:29:17.508+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=28
+time=2025-06-17T17:29:17.508+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=28 error=EOF
+time=2025-06-17T17:29:17.509+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=24 remote_addr=127.0.0.1:55688 bytes_sent=1048576
+time=2025-06-17T17:29:17.510+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=36
+time=2025-06-17T17:29:17.510+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=40
+time=2025-06-17T17:29:17.510+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=40
+time=2025-06-17T17:29:17.510+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=40 purpose=CHUNK_REQUEST
+time=2025-06-17T17:29:17.510+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=40 remote_addr=127.0.0.1:55688 file_id=sirene.mp4 chunk_id=15 offset=15728640 length=1048576
+time=2025-06-17T17:29:17.511+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=36
+time=2025-06-17T17:29:17.511+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=36 error=EOF
+time=2025-06-17T17:29:17.514+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=16 remote_addr=127.0.0.1:55688 bytes_sent=1048576
+time=2025-06-17T17:29:17.520+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=44
+time=2025-06-17T17:29:17.520+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=44
+time=2025-06-17T17:29:17.520+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=44 error=EOF
+time=2025-06-17T17:29:17.521+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=48
+time=2025-06-17T17:29:17.521+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=48
+time=2025-06-17T17:29:17.521+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=48 purpose=CHUNK_REQUEST
+time=2025-06-17T17:29:17.521+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=48 remote_addr=127.0.0.1:55688 file_id=sirene.mp4 chunk_id=18 offset=18874368 length=1048576
+time=2025-06-17T17:29:17.522+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=20 remote_addr=127.0.0.1:55688 bytes_sent=1048576
+time=2025-06-17T17:29:17.523+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=52
+time=2025-06-17T17:29:17.523+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=56
+time=2025-06-17T17:29:17.523+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=56
+time=2025-06-17T17:29:17.523+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=56 purpose=CHUNK_REQUEST
+time=2025-06-17T17:29:17.523+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=56 remote_addr=127.0.0.1:55688 file_id=sirene.mp4 chunk_id=21 offset=22020096 length=1048576
+time=2025-06-17T17:29:17.523+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=52
+time=2025-06-17T17:29:17.523+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=52 error=EOF
+time=2025-06-17T17:29:17.532+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=60
+time=2025-06-17T17:29:17.533+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=64
+time=2025-06-17T17:29:17.533+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=64
+time=2025-06-17T17:29:17.533+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=64 purpose=CHUNK_REQUEST
+time=2025-06-17T17:29:17.533+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=64 remote_addr=127.0.0.1:55688 file_id=sirene.mp4 chunk_id=24 offset=25165824 length=1048576
+time=2025-06-17T17:29:17.533+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=60
+time=2025-06-17T17:29:17.534+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=60 error=EOF
+time=2025-06-17T17:29:17.538+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=32 remote_addr=127.0.0.1:55688 bytes_sent=1048576
+time=2025-06-17T17:29:17.542+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=68
+time=2025-06-17T17:29:17.542+02:00 level=DEBUG msg="Agent accepted new stream on connection" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=72
+time=2025-06-17T17:29:17.543+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=72
+time=2025-06-17T17:29:17.543+02:00 level=INFO msg="Received stream purpose" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=72 purpose=CHUNK_REQUEST
+time=2025-06-17T17:29:17.543+02:00 level=INFO msg="Processing ChunkRequest from client" agent_id=agent001 handler=ClientChunkRequest stream_id=72 remote_addr=127.0.0.1:55688 file_id=sirene.mp4 chunk_id=27 offset=28311552 length=1048576
+time=2025-06-17T17:29:17.543+02:00 level=DEBUG msg="Input reader is not an io.ByteReader, wrapping with bufio.Reader" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=68
+time=2025-06-17T17:29:17.543+02:00 level=DEBUG msg="Stream closed or timed out before purpose received" agent_id=agent001 remote_addr=127.0.0.1:55688 stream_id=68 error=EOF
+time=2025-06-17T17:29:17.554+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=40 remote_addr=127.0.0.1:55688 bytes_sent=1048576
+time=2025-06-17T17:29:17.556+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=56 remote_addr=127.0.0.1:55688 bytes_sent=1048576
+time=2025-06-17T17:29:17.557+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=48 remote_addr=127.0.0.1:55688 bytes_sent=1048576
+time=2025-06-17T17:29:17.558+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=64 remote_addr=127.0.0.1:55688 bytes_sent=1048576
+time=2025-06-17T17:29:17.558+02:00 level=INFO msg="Successfully sent chunk to client" agent_id=agent001 handler=ClientChunkRequest stream_id=72 remote_addr=127.0.0.1:55688 bytes_sent=1048576
+time=2025-06-17T17:29:21.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:29:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:29:41.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:29:47.563+02:00 level=DEBUG msg="Agent connection closed or context cancelled while accepting stream" agent_id=agent001 remote_addr=127.0.0.1:55688 error="timeout: no recent network activity"
+time=2025-06-17T17:29:47.563+02:00 level=DEBUG msg="Closed QUIC connection post-handling (agent)" agent_id=agent001 remote_addr=127.0.0.1:55688
+time=2025-06-17T17:29:51.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:30:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:30:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:30:21.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:30:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:30:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:30:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:31:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:31:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:31:21.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:31:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:31:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:31:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:32:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:32:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:32:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:32:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:32:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:32:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:33:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:33:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:33:21.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:33:31.455+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:33:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:33:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:34:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:34:11.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:34:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:34:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:34:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:34:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:35:01.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:35:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:35:21.452+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:35:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:35:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:35:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:36:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:36:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:36:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:36:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:36:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:36:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:37:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:37:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:37:21.453+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:37:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:37:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:37:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:38:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:38:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:38:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:38:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:38:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:38:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:39:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:39:11.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:39:21.453+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:39:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:39:41.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:39:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:40:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:40:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:40:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:40:31.462+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:40:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:40:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:41:01.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:41:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:41:21.454+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:41:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:41:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:41:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:42:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:42:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:42:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:42:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:42:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:42:51.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:42:56.463+02:00 level=WARN msg="Failed to send heartbeat" agent_id=agent001 error="context deadline exceeded"
+time=2025-06-17T17:43:01.451+02:00 level=INFO msg="Agent attempting to connect to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms address=localhost:7878
+time=2025-06-17T17:43:01.466+02:00 level=INFO msg="Agent successfully connected to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms address=localhost:7878
+time=2025-06-17T17:43:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:43:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:43:31.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:43:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:43:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:44:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:44:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:44:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:44:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:44:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:44:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:45:01.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:45:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:45:21.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:45:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:45:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:45:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:46:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:46:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:46:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:46:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:46:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:46:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:47:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:47:11.461+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:47:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:47:31.451+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:47:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:47:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:48:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:48:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:48:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:48:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:48:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:48:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:49:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:49:11.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:49:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:49:31.452+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:49:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:49:51.461+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:50:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:50:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:50:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:50:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:50:41.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:50:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:51:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:51:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:51:21.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:51:31.453+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:51:41.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:51:51.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:52:01.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:52:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:52:21.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:52:31.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:52:41.460+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:52:51.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:53:01.461+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:53:11.459+02:00 level=DEBUG msg="Reusing existing connection to orchestrator" agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:53:20.508+02:00 level=INFO msg="Received signal, shutting down agent..." agent_id=agent001 signal=interrupt
+time=2025-06-17T17:53:20.508+02:00 level=INFO msg="Context cancelled, stopping ChunkServer listener..." agent_id=agent001
+time=2025-06-17T17:53:20.508+02:00 level=INFO msg="Heartbeat loop stopping." agent_id=agent001
+time=2025-06-17T17:53:20.508+02:00 level=INFO msg="Agent shutting down main process..." agent_id=agent001
+time=2025-06-17T17:53:20.508+02:00 level=INFO msg="ChunkServer listener accept loop ending." agent_id=agent001 reason="context canceled"
+time=2025-06-17T17:53:20.508+02:00 level=INFO msg="ChunkServer Start goroutine finished." agent_id=agent001
+time=2025-06-17T17:53:20.509+02:00 level=INFO msg="Closed agent connection to orchestrator." agent_id=agent001 subcomponent=agent_orch_comms
+time=2025-06-17T17:53:20.509+02:00 level=INFO msg="Agent shutdown complete." agent_id=agent001
+time=2025-06-17T17:53:20.509+02:00 level=INFO msg="Closed agent connection to orchestrator." agent_id=agent001 subcomponent=agent_orch_comms

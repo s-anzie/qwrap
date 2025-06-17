@@ -1,8 +1,8 @@
 {
     "source_root": ".",
-    "output_file": "logs.txt",
+    "output_file": "source.txt",
     "ignore_file": ".bundleignore",
     "include_extensions": [
-        ".log"
+        ".log", ".go", ".proto", ".pb.go", ".pb" 
     ]
 }

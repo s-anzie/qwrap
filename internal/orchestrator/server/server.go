@@ -25,7 +25,7 @@ const (
 	orchestratorDefaultReadTimeout  = 30 * time.Second
 	orchestratorDefaultWriteTimeout = 10 * time.Second
 	alpnOrchestratorProtocol        = "qwrap-orchestrator" // Peut être le même "qwrap" ou spécifique
-	alpnAgentOrchestratorComms      = "qwrap-agent-orch"
+	alpnAgentOrchestratorComms      = "qwrap"
 )
 
 var (

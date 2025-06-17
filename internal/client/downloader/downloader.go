@@ -44,6 +44,15 @@ var (
 	ErrOrchestratorCommsFail = errors.New("communication with orchestrator failed")
 )
 
+// chunkToWrite is a struct used to pass data for a completed chunk to the file writer goroutine.
+// chunkToWrite is a struct used to pass a completed chunk to the file writer goroutine.
+// It contains all information needed for the writer to perform its job.
+type chunkToWrite struct {
+	chunkID uint64
+	data    []byte
+	offset  int64
+}
+
 // OrchestratorComms définit l'interface pour la communication du Downloader avec l'Orchestrateur.
 type OrchestratorComms interface {
 	// ReportChunkTransferStatus envoie le statut d'un chunk à l'orchestrateur.
@@ -185,6 +194,8 @@ func NewDownloader(
 }
 
 // Download (interface)
+// Download is the main public method to start a file download.
+// It initiates the download process in a separate goroutine and returns channels for progress and final error.
 func (d *downloaderImpl) Download(
 	ctx context.Context,
 	initialTransferReq *qwrappb.TransferRequest,
@@ -192,10 +203,15 @@ func (d *downloaderImpl) Download(
 ) (<-chan ProgressInfo, <-chan error) {
 	progressChan := make(chan ProgressInfo, d.config.Concurrency*2)
 	finalErrorChan := make(chan error, 1)
+
+	// Start the entire download management process in a background goroutine.
 	go d.manageDownloadLifecycle(ctx, initialTransferReq, destPath, progressChan, finalErrorChan)
+
 	return progressChan, finalErrorChan
 }
 
+// manageDownloadLifecycle is the core internal function that orchestrates the entire download process.
+// It is run in a goroutine by the public Download method.
 func (d *downloaderImpl) manageDownloadLifecycle(
 	ctx context.Context,
 	initialTransferReq *qwrappb.TransferRequest,
@@ -203,31 +219,30 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 	progressChan chan<- ProgressInfo,
 	finalErrorChan chan<- error,
 ) {
+	// Ensure channels are closed on exit to signal completion to the caller.
 	defer close(progressChan)
 	defer close(finalErrorChan)
 
 	l := d.config.Logger.With("request_id", initialTransferReq.RequestId, "op", "manageDownloadLifecycle")
 	l.Info("Downloader lifecycle started")
 
+	// --- Initial Plan Retrieval ---
 	planCtx, planCancel := context.WithTimeout(ctx, orchestratorCommsTimeout*2)
 	initialPlan, err := d.config.OrchestratorComms.RequestInitialPlan(planCtx, initialTransferReq)
 	planCancel()
 
-	if err != nil { // Gère les erreurs de communication OU les erreurs applicatives (ErrorMessage)
-		// L'erreur de QuicComms.RequestInitialPlan inclut déjà le message d'erreur de l'orchestrateur
+	if err != nil {
 		wrappedErr := fmt.Errorf("%w: %v", ErrOrchestratorPlan, err)
 		l.Error("Failed to get initial transfer plan", "error", wrappedErr)
 		finalErrorChan <- wrappedErr
 		return
 	}
-
-	if initialPlan == nil { // Sécurité supplémentaire
+	if initialPlan == nil {
 		err = fmt.Errorf("%w: received nil plan from orchestrator", ErrOrchestratorPlan)
 		l.Error(err.Error())
 		finalErrorChan <- err
 		return
 	}
-
 	if initialPlan.ErrorMessage != "" {
 		err = fmt.Errorf("%w: orchestrator error in plan: %s", ErrOrchestratorPlan, initialPlan.ErrorMessage)
 		l.Error(err.Error(), "plan_id", initialPlan.PlanId)
@@ -235,24 +250,19 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 		return
 	}
 	if len(initialPlan.SourceFileMetadata) == 0 || initialPlan.SourceFileMetadata[0] == nil {
-		err = fmt.Errorf("%w: initial plan missing source file metadata after successful retrieval", ErrOrchestratorPlan)
+		err = fmt.Errorf("%w: initial plan missing source file metadata", ErrOrchestratorPlan)
 		l.Error(err.Error(), "plan_id", initialPlan.PlanId)
 		finalErrorChan <- err
 		return
 	}
+
 	mainFileMeta := initialPlan.SourceFileMetadata[0]
-	if mainFileMeta.TotalSize <= 0 && len(initialPlan.ChunkAssignments) > 0 {
-		// Si la taille est toujours 0 mais qu'il y a des chunks, c'est un problème de logique orchestrateur
-		err = fmt.Errorf("%w: orchestrator provided plan with chunks but TotalSize is %d", ErrOrchestratorPlan, mainFileMeta.TotalSize)
-		l.Error(err.Error(), "plan_id", initialPlan.PlanId)
-		finalErrorChan <- err
-		return
-	}
 	d.muCurrentPlan.Lock()
 	d.currentPlanSnapshot = initialPlan
 	d.muCurrentPlan.Unlock()
-	l = l.With("plan_id", initialPlan.PlanId, "file_id", mainFileMeta.FileId) // Mettre à jour le logger avec le planID
+	l = l.With("plan_id", initialPlan.PlanId, "file_id", mainFileMeta.FileId)
 
+	// --- Handle Empty File Case ---
 	if len(initialPlan.ChunkAssignments) == 0 {
 		if mainFileMeta.TotalSize > 0 {
 			err = fmt.Errorf("%w: initial plan has no chunk assignments for a non-empty file (size: %d)", ErrOrchestratorPlan, mainFileMeta.TotalSize)
@@ -261,18 +271,18 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 			return
 		}
 		l.Info("Initial plan has no assignments (file is likely empty). Download considered complete.")
-		// Vérifier checksum si fichier vide et checksum fourni
 		if mainFileMeta.TotalSize == 0 && mainFileMeta.ChecksumValue != "" {
 			if !verifyChecksum([]byte{}, mainFileMeta.ChecksumAlgorithm, mainFileMeta.ChecksumValue) {
 				finalErrorChan <- ErrChecksumMismatch
 				return
 			}
 		}
-		finalErrorChan <- nil // Succès pour un fichier vide
+		finalErrorChan <- nil // Success for an empty file
 		return
 	}
 	l.Info("Initial transfer plan received", "num_chunks", len(initialPlan.ChunkAssignments))
 
+	// --- File and State Initialization ---
 	destFile, err := os.OpenFile(destPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, filePermission)
 	if err != nil {
 		finalErrorChan <- fmt.Errorf("%w: creating destination file %s: %v", ErrFileWriteFailed, destPath, err)
@@ -288,13 +298,14 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 	totalChunksInPlan := len(initialPlan.ChunkAssignments)
 	var (
 		wg                           sync.WaitGroup
-		resultsChan                  = make(chan *ChunkDownloadResult, d.config.Concurrency*2) // Assez grand pour ne pas bloquer les workers
+		resultsChan                  = make(chan *ChunkDownloadResult, d.config.Concurrency*2)
+		writeChan                    = make(chan chunkToWrite, d.config.Concurrency*2)
 		downloadedSize               atomic.Int64
 		completedChunksCount         atomic.Int32
 		permanentlyFailedChunksCount atomic.Int32
 		chunkStates                  = make(map[uint64]*chunkTrack, totalChunksInPlan)
 		muChunkStates                sync.RWMutex
-		jobsChan                     = make(chan downloadWorkerJob, d.config.Concurrency*2) // Pour initiaux et retries
+		jobsChan                     = make(chan downloadWorkerJob, d.config.Concurrency*2)
 		updatedPlanExternalChan      = make(chan *qwrappb.UpdatedTransferPlan, 10)
 		activeDownloads              atomic.Int32
 		nextChunkToWriteID           atomic.Uint64
@@ -303,12 +314,16 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 	workerCtx, workerCancel := context.WithCancel(ctx)
 	defer workerCancel()
 
-		// --- Démarrer les workers AVANT d'envoyer les jobs ---
+	// --- Start Workers and Goroutines ---
 	for i := 0; i < d.config.Concurrency; i++ {
 		wg.Add(1)
 		go d.downloadWorker(workerCtx, i+1, jobsChan, resultsChan, &wg)
 	}
 
+	wg.Add(1)
+	go d.fileWriter(workerCtx, &wg, destFile, writeChan, mainFileMeta.FileId)
+
+	// --- Initial Job Dispatch ---
 	muChunkStates.Lock()
 	sortedInitialAssignments := make([]*qwrappb.ChunkAssignment, len(initialPlan.ChunkAssignments))
 	copy(sortedInitialAssignments, initialPlan.ChunkAssignments)
@@ -316,61 +331,64 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 		return sortedInitialAssignments[i].ChunkInfo.ChunkId < sortedInitialAssignments[j].ChunkInfo.ChunkId
 	})
 	for _, assignment := range sortedInitialAssignments {
-		if assignment.ChunkInfo == nil {
-			l.Error("Corrupted initial plan: assignment with nil ChunkInfo") /* Gérer erreur fatale */
-			muChunkStates.Unlock()
-			return
-		}
 		chunkID := assignment.ChunkInfo.ChunkId
 		chunkStates[chunkID] = &chunkTrack{info: assignment.ChunkInfo, currentAssignment: assignment, currentAttemptOnAssign: 1}
-		select {
-		case jobsChan <- downloadWorkerJob{assignment: assignment, attempt: 1}:
-			activeDownloads.Add(1)
-		default:
-			// This case should not be hit if channels are sized correctly and workers are running.
-			l.Error("Failed to send initial job (jobsChan full)")
-			finalErrorChan <- errors.New("job channel init failed")
-			muChunkStates.Unlock()
-			return
-		}
+		jobsChan <- downloadWorkerJob{assignment: assignment, attempt: 1}
+		activeDownloads.Add(1)
 	}
 	muChunkStates.Unlock()
 
+	// --- Start Orchestrator Listener ---
 	if d.config.OrchestratorComms != nil {
-		l.Info("Starting listener for updated plans from orchestrator", "plan_id", initialPlan.PlanId)
+		l.Info("Starting listener for updated plans from orchestrator")
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			// updatedPlanExternalChan sera fermé par la goroutine interne de ListenForUpdatedPlans
 			errListener := d.config.OrchestratorComms.ListenForUpdatedPlans(workerCtx, initialPlan.PlanId, updatedPlanExternalChan)
-			// Logguer l'erreur si ListenForUpdatedPlans retourne une erreur (ex: échec d'ouverture du stream initial)
 			if errListener != nil && !errors.Is(errListener, context.Canceled) && workerCtx.Err() == nil {
-				l.Error("OrchestratorComms.ListenForUpdatedPlans returned an error", "plan_id", initialPlan.PlanId, "error", errListener)
-				// Si cette communication est critique, on pourrait annuler tout le téléchargement.
-				// workerCancel()
+				l.Error("Orchestrator listener returned an error", "error", errListener)
 			}
-			l.Info("Goroutine for ListenForUpdatedPlans has finished.", "plan_id", initialPlan.PlanId)
-			// NE PAS fermer updatedPlanExternalChan ici.
+			l.Info("Orchestrator listener has finished.")
 		}()
 	} else {
-		close(updatedPlanExternalChan) // Pas de comms, donc on ferme pour que le select ne bloque pas.
+		close(updatedPlanExternalChan)
 	}
 
 	var finalErrLoop error
 	outstandingChunks := int32(totalChunksInPlan)
-	reassignmentCheckTicker := time.NewTicker(chunkReassignmentTimeout / 2) // Vérifier périodiquement les chunks en attente
+	reassignmentCheckTicker := time.NewTicker(chunkReassignmentTimeout / 2)
 	defer reassignmentCheckTicker.Stop()
+	// This queue buffers completed chunks that are ready to be sent to the file writer.
+	// This is the key to preventing deadlocks: the main loop can always accept results
+	// from workers and queue them, even if the writer is temporarily blocked.
+	var writeQueue []chunkToWrite
 
-	// --- Boucle Principale de Gestion ---
-	for outstandingChunks > 0 {
+	// --- Main Loop ---
+	// The loop continues as long as there are chunks to be processed OR active workers.
+	for outstandingChunks > 0 || activeDownloads.Load() > 0 {
+		// This is a conditional channel pattern. `sendChan` is nil if the queue is empty,
+		// which effectively disables the case in the select statement. When the queue has items,
+		// `sendChan` points to `writeChan`, enabling the send case.
+		var (
+			chunkToSend chunkToWrite
+			sendChan    chan<- chunkToWrite
+		)
+
+		if len(writeQueue) > 0 {
+			chunkToSend = writeQueue[0]
+			sendChan = writeChan
+		}
+
 		// Envoyer la progression
-		// ... (logique existante)
-
 		select {
 		case <-ctx.Done():
 			finalErrLoop = ErrDownloadCancelled
 			l.Info("Download cancelled by parent context.")
 			goto endLoopDownload
+
+		case sendChan <- chunkToSend:
+			// A chunk was successfully sent to the writer. Remove it from our queue.
+			writeQueue = writeQueue[1:]
 
 		case updatedPlan, ok := <-updatedPlanExternalChan:
 			if !ok {
@@ -518,29 +536,24 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 				if isVerified {
 					muChunkStates.Lock()
 					if !track.isCompleted && !track.isPermanentlyFailed { // Éviter double traitement
-						track.data = result.Data
+						// The chunk is verified and successful. Mark it as completed.
+						// We no longer store the data in the shared `chunkStates` map.
 						track.isCompleted = true
 						track.awaitingReassignment = false
 						completedChunksCount.Add(1)
 						atomic.AddInt32(&outstandingChunks, -1)
 						downloadedSize.Add(int64(len(result.Data)))
-						muChunkStates.Unlock() // Déverrouiller avant tryWrite
-						_, writeErr := d.tryWritePendingChunks(destFile, chunkStates, &muChunkStates, &nextChunkToWriteID, mainFileMeta.FileId)
-						if writeErr != nil {
-							if finalErrLoop == nil {
-								finalErrLoop = writeErr
-							}
-							muChunkStates.Lock()                                 // Reprendre lock pour marquer comme échec
-							if track.isCompleted && !track.isPermanentlyFailed { // Si c'était ce chunk qui a causé l'erreur d'écriture
-								track.isPermanentlyFailed = true
-								track.isCompleted = false
-								permanentlyFailedChunksCount.Add(1)
-								completedChunksCount.Add(-1)
-								atomic.AddInt32(&outstandingChunks, 1) // Ajuster compteurs
-							}
-							muChunkStates.Unlock()
-						}
+						muChunkStates.Unlock()
+
+						// Add the verified chunk to the write queue. Do not send directly.
+						writeQueue = append(writeQueue, chunkToWrite{
+							chunkID: result.ChunkInfo.ChunkId,
+							data:    result.Data,
+							offset:  result.ChunkInfo.Range.Offset,
+						})
 					} else {
+						// If the chunk was already completed/failed (e.g., due to a race with an updated plan),
+						// we still need to unlock the mutex.
 						muChunkStates.Unlock()
 					}
 				}
@@ -580,7 +593,6 @@ endLoopDownload:
 
 	l.Debug("Main download loop ended. Draining results and waiting for goroutines.")
 
-
 	// Start a goroutine to wait for all background tasks. It will close 'waitDone' when they are all finished.
 	waitDone := make(chan struct{})
 	go func() {
@@ -613,11 +625,11 @@ drainLoop:
 	}
 	l.Info("All downloader goroutines have finished.")
 
+	// Close the write channel and wait for the writer to finish its queue.
+	close(writeChan)
+
 	// Tentative finale d'écriture et vérifications finales
-	_, writeErr := d.tryWritePendingChunks(destFile, chunkStates, &muChunkStates, &nextChunkToWriteID, mainFileMeta.FileId)
-	if writeErr != nil && finalErrLoop == nil {
-		finalErrLoop = writeErr
-	}
+	// Le writer s'occupe de tout, on a juste besoin de vérifier l'état final.
 
 	muChunkStates.RLock()
 	finalCompleted := completedChunksCount.Load()
@@ -724,60 +736,6 @@ func (d *downloaderImpl) sendOrchestratorReport(ctx context.Context, planID stri
 				"plan_id", planID, "chunk_id", reportStatus.ChunkInfo.ChunkId, "event", reportStatus.Event)
 		}
 	}()
-}
-
-
-func (d *downloaderImpl) tryWritePendingChunks(
-	destFile *os.File,
-	chunkStates map[uint64]*chunkTrack, // Lecture seule ici après lock externe
-	muChunkStates *sync.RWMutex,
-	nextChunkToWriteID *atomic.Uint64,
-	fileID string,
-) (processedAChunk bool, criticalWriteError error) { // Retourner un booléen si on a traité quelque chose, et une erreur critique
-	muChunkStates.Lock()
-	defer muChunkStates.Unlock()
-
-	processedAChunk = false
-
-	for {
-		currentWriteID := nextChunkToWriteID.Load()
-		track, exists := chunkStates[currentWriteID]
-
-		if !exists || !track.isCompleted || track.data == nil {
-			break
-		}
-		processedAChunk = true // On a trouvé un chunk à traiter
-
-		chunkRange := track.info.Range
-
-		if int64(len(track.data)) != chunkRange.Length {
-			d.config.Logger.Error("Data length mismatch for writing chunk, marking as permanently failed",
-				"chunk_id", currentWriteID, "expected", chunkRange.Length, "actual", len(track.data))
-
-			track.isPermanentlyFailed = true // Marquer comme corrompu DANS le track
-			// Ne pas incrémenter permanentlyFailedChunksCount ici, le faire dans la boucle principale de executeDownload
-			track.data = nil // Libérer la mémoire
-			// Retourner une erreur pour que la boucle principale sache qu'un chunk a échoué définitivement ici
-			criticalWriteError = fmt.Errorf("chunk %d data length mismatch, permanently failed", currentWriteID)
-			// On ne supprime pas de chunkStates, car son statut isFailedPerm est important
-			nextChunkToWriteID.Add(1) // On passe au suivant pour ne pas rester bloqué
-			continue                  // Essayer le prochain chunk si possible, ou la boucle se terminera
-		}
-
-		_, err := destFile.WriteAt(track.data, chunkRange.Offset)
-		if err != nil {
-			d.config.Logger.Error("Failed to write chunk to file, critical error",
-				"chunk_id", currentWriteID, "offset", chunkRange.Offset, "error", err)
-			criticalWriteError = fmt.Errorf("critical file write error for chunk %d: %w", currentWriteID, err)
-			return // Sortir immédiatement en cas d'erreur d'écriture disque
-		}
-		d.config.Logger.Debug("Successfully wrote chunk to disk",
-			"chunk_id", currentWriteID, "offset", chunkRange.Offset, "size", len(track.data))
-
-		track.data = nil // Libérer la mémoire après écriture
-		nextChunkToWriteID.Add(1)
-	}
-	return
 }
 
 // Helper pour fusionner un UpdatedTransferPlan dans un TransferPlan existant (simplifié)
