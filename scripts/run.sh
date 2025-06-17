@@ -19,7 +19,7 @@ AGENT_BASE_PORT=8080 # Agent1 sur 8080, Agent2 sur 8081, etc.
 
 # Fichier de test à télécharger
 TEST_FILE_NAME="sirene.mp4"
-DOWNLOAD_DEST_FILE="${PROJECT_ROOT}/downloaded_${TEST_FILE_NAME}"
+DOWNLOAD_DEST_FILE="${PROJECT_ROOT}/data/output/downloaded_${TEST_FILE_NAME}"
 
 # Options de débogage (debug, info, warn, error)
 LOG_LEVEL="debug"
@@ -132,11 +132,18 @@ if [ ! -f "$AGENT_INVENTORY_FILE" ]; then
     exit 1
 fi
 
-CLIENT_FILE_ID=$(jq -r '.files[0].global_file_id' "$AGENT_INVENTORY_FILE")
-FILE_SIZE=$(jq -r '.files[0].file_size' "$AGENT_INVENTORY_FILE")
+CLIENT_FILE_ID=$(jq -r 'keys[0]' "$AGENT_INVENTORY_FILE")
+# Get the file size from the original input file for verification later
+ORIGINAL_FILE_PATH="${PROJECT_ROOT}/data/input/${TEST_FILE_NAME}"
+if [ ! -f "$ORIGINAL_FILE_PATH" ]; then
+    echo "ERREUR: Fichier source introuvable pour la vérification de taille: ${ORIGINAL_FILE_PATH}"
+    cleanup
+    exit 1
+fi
+FILE_SIZE=$(stat -c%s "$ORIGINAL_FILE_PATH")
 
-if [ -z "$CLIENT_FILE_ID" ] || [ -z "$FILE_SIZE" ]; then
-    echo "ERREUR: Impossible de lire file_id ou file_size depuis ${AGENT_INVENTORY_FILE}"
+if [ -z "$CLIENT_FILE_ID" ] || [ "$CLIENT_FILE_ID" == "null" ]; then
+    echo "ERREUR: Impossible de lire file_id depuis ${AGENT_INVENTORY_FILE}"
     cleanup
     exit 1
 fi

@@ -197,6 +197,12 @@ func (g *Generator) distributePortions(portions []*qwrappb.FilePortionInfo) map[
 	return distribution
 }
 
+// InventoryData wraps the portions and includes the total file size.
+type InventoryData struct {
+	Portions  []*qwrappb.FilePortionInfo `json:"portions"`
+	TotalSize int64                     `json:"file_size"`
+}
+
 // writeAgentData creates the directory structure, data files, and inventory for each agent.
 func (g *Generator) writeAgentData(agentPortions map[string][]*qwrappb.FilePortionInfo) error {
 	// Cache for open source file handles
@@ -214,9 +220,28 @@ func (g *Generator) writeAgentData(agentPortions map[string][]*qwrappb.FilePorti
 		}
 
 		// Group portions by file ID for inventory
-		inventory := make(map[string][]*qwrappb.FilePortionInfo)
+		inventory := make(map[string]InventoryData)
 		for _, p := range portions {
-			inventory[p.GlobalFileId] = append(inventory[p.GlobalFileId], p)
+			data := inventory[p.GlobalFileId]
+			data.Portions = append(data.Portions, p)
+			inventory[p.GlobalFileId] = data
+		}
+
+		// Get total file size for each file in the inventory
+		for fileID, data := range inventory {
+			var totalSize int64
+			if g.sourceRoot != "" {
+				sourcePath := filepath.Join(g.sourceRoot, fileID)
+				info, err := os.Stat(sourcePath)
+				if err != nil {
+					return fmt.Errorf("failed to stat source file for size %s: %w", sourcePath, err)
+				}
+				totalSize = info.Size()
+			} else {
+				totalSize = g.config.GenerationMode.TotalSize
+			}
+			data.TotalSize = totalSize
+			inventory[fileID] = data
 		}
 
 		for _, portion := range portions {

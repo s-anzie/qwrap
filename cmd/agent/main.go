@@ -264,8 +264,7 @@ func main() {
 		MessageWriterFactory: writerFactory, // Passer les factories
 		MessageReaderFactory: readerFactory,
 	}
-	csProvider := chunkserver.NewDiskFileProvider(*dataDir, agentLogger)
-	cs, err := chunkserver.NewChunkServer(csConfig, csProvider) // Appel mis à jour
+	cs, err := chunkserver.NewChunkServer(csConfig)
 	if err != nil {
 		agentLogger.Error("Failed to create ChunkServer", "error", err)
 		os.Exit(1)

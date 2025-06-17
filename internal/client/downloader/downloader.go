@@ -303,6 +303,12 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 	workerCtx, workerCancel := context.WithCancel(ctx)
 	defer workerCancel()
 
+		// --- Démarrer les workers AVANT d'envoyer les jobs ---
+	for i := 0; i < d.config.Concurrency; i++ {
+		wg.Add(1)
+		go d.downloadWorker(workerCtx, i+1, jobsChan, resultsChan, &wg)
+	}
+
 	muChunkStates.Lock()
 	sortedInitialAssignments := make([]*qwrappb.ChunkAssignment, len(initialPlan.ChunkAssignments))
 	copy(sortedInitialAssignments, initialPlan.ChunkAssignments)
@@ -312,6 +318,7 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 	for _, assignment := range sortedInitialAssignments {
 		if assignment.ChunkInfo == nil {
 			l.Error("Corrupted initial plan: assignment with nil ChunkInfo") /* Gérer erreur fatale */
+			muChunkStates.Unlock()
 			return
 		}
 		chunkID := assignment.ChunkInfo.ChunkId
@@ -320,6 +327,7 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 		case jobsChan <- downloadWorkerJob{assignment: assignment, attempt: 1}:
 			activeDownloads.Add(1)
 		default:
+			// This case should not be hit if channels are sized correctly and workers are running.
 			l.Error("Failed to send initial job (jobsChan full)")
 			finalErrorChan <- errors.New("job channel init failed")
 			muChunkStates.Unlock()
@@ -327,11 +335,6 @@ func (d *downloaderImpl) manageDownloadLifecycle(
 		}
 	}
 	muChunkStates.Unlock()
-
-	for i := 0; i < d.config.Concurrency; i++ {
-		wg.Add(1)
-		go d.downloadWorker(workerCtx, i, jobsChan, resultsChan, &wg)
-	}
 
 	if d.config.OrchestratorComms != nil {
 		l.Info("Starting listener for updated plans from orchestrator", "plan_id", initialPlan.PlanId)

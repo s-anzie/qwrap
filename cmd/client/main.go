@@ -30,13 +30,16 @@ import (
 const alpnClientToAgent = "qwrap"
 
 func main() {
-	orchestratorAddr := flag.String("orchestrator", "localhost:7878", "Orchestrator address")
-	fileID := flag.String("file", "testfile.dat", "File ID to download (must exist on an agent known to orchestrator)") // Default pour test
-	destPath := flag.String("o", "downloaded_testfile.dat", "Destination path for the downloaded file")
-	insecure := flag.Bool("insecure", true, "Skip TLS certificate verification (FOR TESTING AGAINST SELF-SIGNED CERTS)") // Default true pour faciliter les tests locaux
-	caFileOrch := flag.String("ca-orch", "", "Path to CA certificate file for Orchestrator (if not using system CAs or insecure)")
-	caFileAgent := flag.String("ca-agent", "", "Path to CA certificate file for Agents (if not using system CAs or insecure)")
-	logLevelStr := flag.String("loglevel", "debug", "Log level (debug, info, warn, error)") // Default debug pour voir plus
+	var (
+		orchestratorAddr = flag.String("orchestrator", "localhost:7878", "Orchestrator address")
+		fileID           = flag.String("file", "testfile.dat", "File ID to download (must exist on an agent known to orchestrator)")
+		fileSize         = flag.Int64("size", 0, "Total size of the file in bytes (required if orchestrator can't determine it)")
+		destPath         = flag.String("o", "downloaded_testfile.dat", "Destination path for the downloaded file")
+		insecure         = flag.Bool("insecure", true, "Skip TLS certificate verification (FOR TESTING AGAINST SELF-SIGNED CERTS)")
+		caFileOrch       = flag.String("ca-orch", "", "Path to CA certificate file for Orchestrator (if not using system CAs or insecure)")
+		caFileAgent     = flag.String("ca-agent", "", "Path to CA certificate file for Agents (if not using system CAs or insecure)")
+		logLevelStr     = flag.String("loglevel", "debug", "Log level (debug, info, warn, error)")
+	)
 	flag.Parse()
 
 	if *fileID == "" {
@@ -139,25 +142,29 @@ func main() {
 	dl := downloader.NewDownloader(connMgr, orchComms, logger, 10, writerFactory, readerFactory)
 
 	// 5. Préparer la TransferRequest
+	clientReqId := fmt.Sprintf("client-req-%d", time.Now().UnixNano())
 	transferReq := &qwrappb.TransferRequest{
-		RequestId: "client-req-" + fmt.Sprintf("%d", time.Now().UnixNano()),
+		RequestId: clientReqId,
 		FilesToTransfer: []*qwrappb.FileMetadata{
 			{
-				FileId: *fileID, // Le client envoie juste l'ID logique du fichier
-				// TotalSize, ChecksumAlgorithm, ChecksumValue sont omis ou mis à zéro par défaut.
-				// L'orchestrateur est responsable de les découvrir.
+				FileId:    *fileID,
+				TotalSize: *fileSize, // Pass the file size if provided
 			},
 		},
 		Options: &qwrappb.TransferOptions{VerifyChunkChecksums: true, Priority: 0},
 	}
-	logger.Info("Client prepared TransferRequest, FileID only", "file_id", *fileID, "request_id", transferReq.RequestId)
+
+	if *fileSize > 0 {
+		logger.Info("Client prepared TransferRequest with FileID and FileSize", "file_id", *fileID, "file_size", *fileSize, "request_id", clientReqId)
+	} else {
+		logger.Info("Client prepared TransferRequest, FileID only", "file_id", *fileID, "request_id", clientReqId)
+	}
 
 	// 6. Démarrer le téléchargement
 	logger.Info("Initiating download process...", "file_id", *fileID)
 	progressChan, finalErrorChan := dl.Download(ctx, transferReq, *destPath)
 
 	// 7. Gérer la progression et le résultat final
-	// ... (logique de la boucle select pour progressChan, finalErrorChan, ticker, ctx.Done() - comme avant) ...
 	var lastProgress downloader.ProgressInfo
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
