@@ -162,7 +162,14 @@ func main() {
 
 	// 6. Démarrer le téléchargement
 	logger.Info("Initiating download process...", "file_id", *fileID)
-	progressChan, finalErrorChan := dl.Download(ctx, transferReq, *destPath)
+	destFile, err := os.OpenFile(*destPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		logger.Error("failed to open destination file", "path", *destPath, "error", err)
+		os.Exit(1)
+	}
+	defer destFile.Close()
+
+	progressChan, finalErrorChan := dl.Download(ctx, transferReq, destFile)
 
 	// 7. Gérer la progression et le résultat final
 	var lastProgress downloader.ProgressInfo

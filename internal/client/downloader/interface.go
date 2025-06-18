@@ -2,6 +2,9 @@ package downloader
 
 import (
 	"context"
+	"io"
+	"time"
+
 	"qwrap/pkg/qwrappb" // Votre package protobuf généré
 
 	"github.com/quic-go/quic-go"
@@ -20,6 +23,16 @@ type ProgressInfo struct {
 	// (Futur) CurrentSpeedBps float64
 }
 
+// BackpressureStrategy définit la méthode pour gérer la pression entre les téléchargements rapides et l'écriture disque lente.
+type BackpressureStrategy string
+
+const (
+	// TokenBackpressure utilise un pool de jetons pour limiter le nombre de chunks en vol (téléchargés mais pas encore écrits).
+	TokenBackpressure BackpressureStrategy = "token"
+	// DiskQueueBackpressure utilise des fichiers temporaires sur disque pour mettre en file d'attente les chunks terminés, minimisant l'utilisation de la mémoire.
+	DiskQueueBackpressure BackpressureStrategy = "disk"
+)
+
 // ChunkDownloadResult contient le résultat du téléchargement d'un chunk spécifique.
 type ChunkDownloadResult struct {
 	ChunkInfo *qwrappb.ChunkInfo // Utiliser un pointeur pour éviter la copie du mutex interne
@@ -29,17 +42,24 @@ type ChunkDownloadResult struct {
 	Attempt   int    // Numéro de la tentative
 }
 
+// DestinationWriter définit les méthodes requises pour la destination du téléchargement.
+// Il permet d'écrire à des offsets spécifiques et de tronquer, ce qui est nécessaire
+// pour la pré-allocation et l'écriture de chunks en parallèle.
+type DestinationWriter interface {
+	io.WriterAt
+	Truncate(size int64) error
+}
+
 // Downloader gère le processus de téléchargement distribué d'un fichier.
 type Downloader interface {
 	// Download démarre le processus de téléchargement pour le TransferPlan donné.
-	// Il écrit le fichier reconstitué dans destPath.
+	// Il écrit le fichier reconstitué dans dest.
 	// Le contexte peut être utilisé pour annuler le téléchargement.
 	// Renvoie un channel pour suivre la progression et un channel d'erreurs finales.
-	Download(ctx context.Context, initialPlanReq *qwrappb.TransferRequest, destPath string) (progressChan <-chan ProgressInfo, finalErrorChan <-chan error)
+	Download(ctx context.Context, initialPlanReq *qwrappb.TransferRequest, dest DestinationWriter) (<-chan ProgressInfo, <-chan error)
 
-	// (Optionnel pour une première version, mais utile pour pause/reprise)
-	// Pause(ctx context.Context) error
-	// Resume(ctx context.Context) error
+	// Shutdown tente d'arrêter proprement le downloader dans le délai imparti.
+	Shutdown(timeout time.Duration) error
 }
 
 // Interface pour le ConnectionManager, pour faciliter le mocking.
