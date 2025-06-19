@@ -1,4 +1,3 @@
-// internal/client/orchestratorclient/quic_comms.go
 package orchestratorclient
 
 import (

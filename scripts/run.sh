@@ -1,72 +1,68 @@
 #!/bin/bash
 
-# Script pour lancer un client qwrap et télécharger un fichier.
-# Ce script suppose que l'orchestrateur et les agents sont déjà en cours d'exécution
-# (lancés via scripts/background.sh, par exemple).
+# run_client.sh
+# Script pour compiler et exécuter le client qwrap, avec redirection des logs.
 
-# --- Configuration ---
-PROJECT_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-BIN_DIR="${PROJECT_ROOT}/bin"
-LOG_DIR="${PROJECT_ROOT}/logs"
-AGENT_DATA_BASE_DIR="${PROJECT_ROOT}/data/agents"
-
-CLIENT_LOG="${LOG_DIR}/client.log"
+# Variables de configuration (à adapter si nécessaire)
 ORCHESTRATOR_ADDR="localhost:7878"
+FILE_ID_TO_DOWNLOAD="sirene.mp4" 
+OUTPUT_FILE_PATH="./downloaded_files/${FILE_ID_TO_DOWNLOAD}"
+LOG_DIR="./logs" # Répertoire pour les logs
+LOG_FILE_PATH="${LOG_DIR}/client.log" # Chemin complet du fichier de log
+LOG_LEVEL="debug" 
+CONCURRENCY=12    
+INSECURE_TLS="true" 
 
-TEST_FILE_NAME="sirene.mp4"
-DOWNLOAD_DEST_FILE="${PROJECT_ROOT}/data/output/downloaded_${TEST_FILE_NAME}"
+# --- Fin de la configuration ---
 
-LOG_LEVEL="debug"
-INSECURE_TLS_FLAG="-insecure"
+# Créer le répertoire de sortie pour les fichiers téléchargés
+mkdir -p "$(dirname "$OUTPUT_FILE_PATH")"
 
-# --- Exécution du Client ---
+# Créer le répertoire des logs s'il n'existe pas
+mkdir -p "$LOG_DIR"
 
-echo "Démarrage du Client pour télécharger ${TEST_FILE_NAME}..."
-
-# Recompiler le client au cas où il y aurait eu des changements
-echo "Compilation du client..."
-go build -o "${BIN_DIR}/client" ./cmd/client/main.go || { echo "ERREUR: Échec compilation client"; exit 1; }
-
-AGENT_INVENTORY_FILE="${AGENT_DATA_BASE_DIR}/agent001/inventory.json"
-if [ ! -f "$AGENT_INVENTORY_FILE" ]; then
-    echo "ERREUR: Fichier d'inventaire introuvable: ${AGENT_INVENTORY_FILE}"
-    echo "Assurez-vous que les services d'arrière-plan sont démarrés (scripts/background.sh) et que les données ont été générées."
+# Construire le client
+echo "Building qwrap client..."
+go build -o ./bin/qwrap_client ./cmd/client
+if [ $? -ne 0 ]; then
+    echo "Build failed!"
     exit 1
 fi
+echo "Build successful."
 
-CLIENT_FILE_ID=$(jq -r 'keys[0]' "$AGENT_INVENTORY_FILE")
-ORIGINAL_FILE_PATH="${PROJECT_ROOT}/data/input/${TEST_FILE_NAME}"
-if [ ! -f "$ORIGINAL_FILE_PATH" ]; then
-    echo "ERREUR: Fichier source introuvable: ${ORIGINAL_FILE_PATH}"
-    exit 1
+# Préparer les arguments
+ARGS=""
+ARGS+=" -orchestrator=${ORCHESTRATOR_ADDR}"
+ARGS+=" -file=${FILE_ID_TO_DOWNLOAD}"
+ARGS+=" -o=${OUTPUT_FILE_PATH}"
+ARGS+=" -loglevel=${LOG_LEVEL}"
+ARGS+=" -concurrency=${CONCURRENCY}"
+ARGS+=" -insecure=${INSECURE_TLS}"
+
+# Exécuter le client et rediriger stdout et stderr vers tee
+# tee dupliquera la sortie vers le fichier de log ET vers la console
+echo "Running qwrap client. Logs will be in ${LOG_FILE_PATH} and on console."
+echo "Command: ./bin/qwrap_client ${ARGS}"
+echo "--- Client Output Start ---"
+
+# 2>&1 redirige stderr vers stdout, puis | tee envoie stdout (qui contient maintenant aussi stderr)
+# à la fois au fichier (en mode ajout -a) et à la sortie standard du script (la console).
+./bin/qwrap_client ${ARGS} 2>&1 | tee -a "${LOG_FILE_PATH}"
+
+# Récupérer le code de sortie du client qwrap
+# La commande ci-dessus exécute qwrap_client et tee dans un pipeline.
+# $? donnerait le code de sortie de tee. PIPESTATUS[0] donne le code de sortie de la première commande du pipeline.
+CLIENT_EXIT_CODE=${PIPESTATUS[0]}
+
+echo "--- Client Output End ---"
+
+if [ ${CLIENT_EXIT_CODE} -ne 0 ]; then
+    echo "Client exited with error code: ${CLIENT_EXIT_CODE}"
+    echo "Check ${LOG_FILE_PATH} for details."
+else
+    echo "Client finished successfully."
+    echo "Downloaded file: ${OUTPUT_FILE_PATH}"
+    echo "Logs available in ${LOG_FILE_PATH}"
 fi
-FILE_SIZE=$(stat -c%s "$ORIGINAL_FILE_PATH")
 
-if [ -z "$CLIENT_FILE_ID" ] || [ "$CLIENT_FILE_ID" == "null" ]; then
-    echo "ERREUR: Impossible de lire file_id depuis ${AGENT_INVENTORY_FILE}"
-    exit 1
-fi
-
-echo "Demande de transfert pour le fichier: ${CLIENT_FILE_ID} (Taille: ${FILE_SIZE} octets)"
-
-rm -f "${DOWNLOAD_DEST_FILE}"
-rm -f "${CLIENT_LOG}"
-
-"${BIN_DIR}/client" \
-    -file "${CLIENT_FILE_ID}" \
-    -o "${DOWNLOAD_DEST_FILE}" \
-    -orchestrator "${ORCHESTRATOR_ADDR}" \
-    ${INSECURE_TLS_FLAG} \
-    -loglevel "${LOG_LEVEL}" > "${CLIENT_LOG}" 2>&1
-
-# --- Résultat ---
-echo
-echo "Transfert terminé."
-echo "Pour voir les détails du transfert, consultez les 20 dernières lignes du log client avec la commande :"
-echo "tail -n 20 ${CLIENT_LOG}"
-echo
-
-
-
-echo "Fin du scénario de test."
-echo "Logs disponibles dans le répertoire: ${LOG_DIR}"
+exit ${CLIENT_EXIT_CODE}

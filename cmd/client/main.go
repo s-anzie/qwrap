@@ -4,46 +4,51 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"crypto/x509" // Pour charger les CA système ou un CA personnalisé
+	"crypto/x509"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil" // Pour ioutil.ReadFile, bien que os.ReadFile soit préféré en Go 1.16+
 	"log/slog"
-	"os"
+	"os" // Remplacement pour io/ioutil
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
 
 	"qwrap/internal/client/downloader"
-	connectionmanager "qwrap/internal/client/manager" // Renommé en connectionmanager dans les fichiers
+	connectionmanager "qwrap/internal/client/manager"
 	"qwrap/internal/client/orchestratorclient"
 	"qwrap/internal/framing"
-
 	"qwrap/pkg/qwrappb"
 )
 
-// ALPN constants (pourraient être dans un package partagé `common` ou `protocol`)
-// const alpnClientToOrchestrator = "qwrap-orchestrator" // Défini dans orchestratorclient
+// ... (const alpnClientToAgent, customDestWriter) ... (inchangés)
 const alpnClientToAgent = "qwrap"
 
+type customDestWriter struct {
+	*os.File
+}
+
+func (cdw *customDestWriter) Sync() error { return cdw.File.Sync() }
+
 func main() {
+	// ... (flags inchangés) ...
 	var (
 		orchestratorAddr = flag.String("orchestrator", "localhost:7878", "Orchestrator address")
-		fileID           = flag.String("file", "testfile.dat", "File ID to download (must exist on an agent known to orchestrator)")
-		fileSize         = flag.Int64("size", 0, "Total size of the file in bytes (required if orchestrator can't determine it)")
-		destPath         = flag.String("o", "downloaded_testfile.dat", "Destination path for the downloaded file")
-		insecure         = flag.Bool("insecure", true, "Skip TLS certificate verification (FOR TESTING AGAINST SELF-SIGNED CERTS)")
-		caFileOrch       = flag.String("ca-orch", "", "Path to CA certificate file for Orchestrator (if not using system CAs or insecure)")
-		caFileAgent     = flag.String("ca-agent", "", "Path to CA certificate file for Agents (if not using system CAs or insecure)")
-		logLevelStr     = flag.String("loglevel", "debug", "Log level (debug, info, warn, error)")
+		fileID           = flag.String("file", "testfile.dat", "File ID to download")
+		fileSize         = flag.Int64("size", 0, "Total size of the file (optional)")
+		destPath         = flag.String("o", "downloaded_testfile.dat", "Destination path")
+		insecure         = flag.Bool("insecure", true, "Skip TLS certificate verification")
+		caFileOrch       = flag.String("ca-orch", "", "Path to CA certificate for Orchestrator")
+		caFileAgent      = flag.String("ca-agent", "", "Path to CA certificate for Agents")
+		logLevelStr      = flag.String("loglevel", "debug", "Log level (debug, info, warn, error)")
+		concurrency      = flag.Int("concurrency", 10, "Number of concurrent download workers")
 	)
 	flag.Parse()
 
 	if *fileID == "" {
-		slog.Error("File ID must be provided with -file")
+		fmt.Fprintln(os.Stderr, "Error: File ID must be provided with -file")
 		os.Exit(1)
 	}
 
@@ -60,172 +65,154 @@ func main() {
 	default:
 		logLevel = slog.LevelInfo
 	}
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel, AddSource: true}))
-	slog.SetDefault(logger)
 
-	logger.Info("qwrap client starting", "orchestrator", *orchestratorAddr, "file_id", *fileID, "destination", *destPath)
+	handlerOptions := &slog.HandlerOptions{Level: logLevel, AddSource: true}
+	baseLogger := slog.New(slog.NewTextHandler(os.Stdout, handlerOptions)) // Renommé en baseLogger pour éviter conflit
+	slog.SetDefault(baseLogger)                                            // Important: définir le logger par défaut AVANT de créer les factories qui pourraient l'utiliser
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		sig := <-sigChan
-		logger.Info("Received signal, shutting down client...", "signal", sig)
-		cancel()
-	}()
+	baseLogger.Info("qwrap client starting (new pipeline arch)", "orchestrator", *orchestratorAddr, "file_id", *fileID, "destination", *destPath, "concurrency", *concurrency)
 
-	// TLS Config pour la connexion à l'Orchestrateur
+	mainCtx, mainCancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer mainCancel()
+
 	orchTLSClientConf := &tls.Config{
 		InsecureSkipVerify: *insecure,
-		NextProtos:         []string{orchestratorclient.QuicCommsALPN()}, // Utiliser la constante exportée
+		NextProtos:         []string{orchestratorclient.QuicCommsALPN()},
 	}
 	if *caFileOrch != "" {
-		if err := loadCACert(orchTLSClientConf, *caFileOrch, logger); err != nil {
-			logger.Error("Failed to load CA for orchestrator, proceeding with system CAs or insecure", "ca_file", *caFileOrch, "error", err)
-		}
+		loadCACertFromFile(orchTLSClientConf, *caFileOrch, baseLogger)
 	}
 
-	// TLS Config pour la connexion aux Agents (peut être la même ou différente)
 	agentTLSClientConf := &tls.Config{
-		InsecureSkipVerify: *insecure, // Pourrait être un flag séparé `insecure-agent`
+		InsecureSkipVerify: *insecure,
 		NextProtos:         []string{alpnClientToAgent},
 	}
 	if *caFileAgent != "" {
-		if err := loadCACert(agentTLSClientConf, *caFileAgent, logger); err != nil {
-			logger.Error("Failed to load CA for agents, proceeding with system CAs or insecure", "ca_file", *caFileAgent, "error", err)
-		}
+		loadCACertFromFile(agentTLSClientConf, *caFileAgent, baseLogger)
 	}
 
-	// 1. Créer ConnectionManager pour les connexions aux Agents
-	connMgrConfig := connectionmanager.Config{ // Assurez-vous que le nom du package est correct
-		TLSClientConfig: agentTLSClientConf, // Utiliser la config TLS spécifique aux agents
-		Logger:          logger,
-		MaxConnections:  20, // Exemple
-		DialTimeout:     5 * time.Second,
-	}
+	connMgrConfig := connectionmanager.Config{TLSClientConfig: agentTLSClientConf, Logger: baseLogger}
 	connMgr := connectionmanager.NewConnectionManager(connMgrConfig)
-	defer connMgr.CloseAll()
 
-	// 2. Définir les Factories de framing
+	// Définir les factories de framing ici
 	writerFactory := func(w io.Writer, l *slog.Logger) framing.Writer {
+		// Utiliser le logger 'l' passé par le composant appelant (worker, orchComms)
+		// ou fallback sur baseLogger si 'l' est nil (ne devrait pas arriver si bien utilisé).
 		if l == nil {
-			l = logger
+			l = baseLogger
 		}
-		return framing.NewMessageWriter(w, l.With("role", "writer"))
+		return framing.NewMessageWriter(w, l.With("framing_role", "writer"))
 	}
 	readerFactory := func(r io.Reader, l *slog.Logger) framing.Reader {
 		if l == nil {
-			l = logger
+			l = baseLogger
 		}
-		return framing.NewMessageReader(r, l.With("role", "reader"))
+		return framing.NewMessageReader(r, l.With("framing_role", "reader"))
 	}
 
-	// 3. Créer OrchestratorComms (en utilisant l'implémentation QUIC)
-	orchComms, err := orchestratorclient.NewQuicComms(*orchestratorAddr, orchTLSClientConf, logger, writerFactory, readerFactory)
+	orchComms, err := orchestratorclient.NewQuicComms(*orchestratorAddr, orchTLSClientConf, baseLogger, writerFactory, readerFactory)
 	if err != nil {
-		logger.Error("Failed to create orchestrator comms", "error", err)
+		baseLogger.Error("Failed to create orchestrator comms", "error", err)
 		os.Exit(1)
 	}
 
-	connectCtx, connectCancel := context.WithTimeout(ctx, 10*time.Second)
-	if err := orchComms.Connect(connectCtx, *orchestratorAddr); err != nil { // Passer l'adresse ici
-		logger.Error("Failed to connect to orchestrator", "address", *orchestratorAddr, "error", err)
-		connectCancel()
-		os.Exit(1)
-	}
-	connectCancel()
-	defer orchComms.Close()
+	// Le Downloader prend maintenant les factories
+	dl := downloader.NewDownloader(connMgr, orchComms, baseLogger, *concurrency, writerFactory, readerFactory)
 
-	// 4. Créer le Downloader
-	// Wrap writerFactory and readerFactory to match the expected signature
-	dl := downloader.NewDownloader(connMgr, orchComms, logger, 10, writerFactory, readerFactory)
-
-	// 5. Préparer la TransferRequest
 	clientReqId := fmt.Sprintf("client-req-%d", time.Now().UnixNano())
 	transferReq := &qwrappb.TransferRequest{
 		RequestId: clientReqId,
 		FilesToTransfer: []*qwrappb.FileMetadata{
-			{
-				FileId:    *fileID,
-				TotalSize: *fileSize, // Pass the file size if provided
-			},
+			{FileId: *fileID, TotalSize: *fileSize},
 		},
-		Options: &qwrappb.TransferOptions{VerifyChunkChecksums: true, Priority: 0},
+		Options: &qwrappb.TransferOptions{VerifyChunkChecksums: true},
 	}
 
-	if *fileSize > 0 {
-		logger.Info("Client prepared TransferRequest with FileID and FileSize", "file_id", *fileID, "file_size", *fileSize, "request_id", clientReqId)
-	} else {
-		logger.Info("Client prepared TransferRequest, FileID only", "file_id", *fileID, "request_id", clientReqId)
-	}
-
-	// 6. Démarrer le téléchargement
-	logger.Info("Initiating download process...", "file_id", *fileID)
-	destFile, err := os.OpenFile(*destPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	destFileOS, err := os.OpenFile(*destPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		logger.Error("failed to open destination file", "path", *destPath, "error", err)
+		baseLogger.Error("Failed to open destination file", "path", *destPath, "error", err)
 		os.Exit(1)
 	}
-	defer destFile.Close()
+	destFileWriter := &customDestWriter{File: destFileOS}
 
-	progressChan, finalErrorChan := dl.Download(ctx, transferReq, destFile)
+	baseLogger.Info("Initiating download...", "file_id", *fileID)
+	progressChan, finalErrorChan := dl.Download(mainCtx, transferReq, destFileWriter)
 
-	// 7. Gérer la progression et le résultat final
 	var lastProgress downloader.ProgressInfo
-	ticker := time.NewTicker(2 * time.Second)
+	// Utilisation de la constante exportée depuis le package downloader
+	ticker := time.NewTicker(downloader.ProgressReportInterval)
 	defer ticker.Stop()
 	progressBarUpdate := false
+	var downloadErr error
+	var exitCode int
 
+	shutdownCompleted := make(chan struct{})
+	go func() {
+		defer close(shutdownCompleted)
+		defer destFileWriter.Close()
+		defer connMgr.CloseAll()
+
+		downloadErr = <-finalErrorChan
+		mainCancel()
+
+		if downloadErr != nil && !errors.Is(downloadErr, context.Canceled) {
+			baseLogger.Error("Download failed", "file_id", *fileID, "error", downloadErr)
+			exitCode = 1
+		} else if errors.Is(downloadErr, context.Canceled) {
+			baseLogger.Info("Download was cancelled.", "file_id", *fileID)
+		} else {
+			baseLogger.Info("Download completed successfully!", "file_id", *fileID, "destination", *destPath)
+			exitCode = 0
+		}
+
+		shutdownTimeout := 10 * time.Second
+		baseLogger.Info("Attempting to shutdown downloader...", "timeout", shutdownTimeout)
+		if err := dl.Shutdown(shutdownTimeout); err != nil {
+			baseLogger.Error("Downloader shutdown failed", "error", err)
+			if exitCode == 0 {
+				exitCode = 1
+			}
+		} else {
+			baseLogger.Info("Downloader shutdown successful.")
+		}
+	}()
+
+consoleLoop:
 	for {
 		select {
 		case p, ok := <-progressChan:
 			if !ok {
 				progressChan = nil
 				continue
-			} // Channel fermé
+			}
 			lastProgress = p
 			progressBarUpdate = true
-		case err := <-finalErrorChan:
-			if progressBarUpdate {
-				printProgress(logger, *fileID, lastProgress, true)
-			} // Afficher la dernière progression avant le message final
-			if err != nil {
-				logger.Error("Download failed", "file_id", *fileID, "error", err)
-				os.Exit(1)
-			}
-			logger.Info("Download completed successfully!", "file_id", *fileID, "destination", *destPath)
-			return // Succès
 		case <-ticker.C:
-			if progressBarUpdate && progressChan != nil { // Afficher seulement si la progression a changé
-				printProgress(logger, *fileID, lastProgress, false)
+			if progressBarUpdate && progressChan != nil {
+				printProgress(baseLogger, *fileID, lastProgress, false)
 				progressBarUpdate = false
 			}
-		case <-ctx.Done():
-			logger.Info("Client shutting down due to context cancellation (main).")
-			select {
-			case errShutdown := <-finalErrorChan:
-				if errShutdown != nil && !errors.Is(errShutdown, context.Canceled) && !errors.Is(errShutdown, downloader.ErrDownloadCancelled) {
-					logger.Error("Download ended with error during shutdown", "error", errShutdown)
-				} else {
-					logger.Info("Download ended cleanly or was cancelled during shutdown.")
-				}
-			case <-time.After(10 * time.Second):
-				logger.Warn("Timeout waiting for downloader to finish after cancellation.")
-			}
-			return
+		case <-mainCtx.Done():
+			baseLogger.Info("Client main loop received context done signal.")
+			break consoleLoop
 		}
 	}
+
+	baseLogger.Info("Waiting for shutdown tasks to complete...")
+	<-shutdownCompleted
+	baseLogger.Info("All client tasks finished. Exiting.", "exit_code", exitCode)
+	os.Exit(exitCode)
 }
 
 func printProgress(logger *slog.Logger, fileID string, p downloader.ProgressInfo, final bool) {
+	// ... (inchangé)
 	percent := 0.0
 	if p.TotalSizeBytes > 0 {
 		percent = (float64(p.DownloadedSizeBytes) / float64(p.TotalSizeBytes)) * 100
 	}
 	status := "Progress"
 	if final && p.FailedChunks > 0 {
-		status = "Last progress (failed)"
+		status = "Last progress (with failures)"
 	} else if final {
 		status = "Final progress"
 	}
@@ -233,14 +220,14 @@ func printProgress(logger *slog.Logger, fileID string, p downloader.ProgressInfo
 	logger.Info(status,
 		"file", fileID,
 		"progress", fmt.Sprintf("%.2f%%", percent),
-		"chunks", fmt.Sprintf("%d/%d", p.CompletedChunks, p.TotalChunks),
+		"chunks_completed", fmt.Sprintf("%d/%d", p.CompletedChunks, p.TotalChunks),
+		"chunks_failed_perm", p.FailedChunks,
 		"bytes", fmt.Sprintf("%s/%s", formatBytes(p.DownloadedSizeBytes), formatBytes(p.TotalSizeBytes)),
-		"active", p.ActiveDownloads,
-		"failed", p.FailedChunks,
+		"active_workers_approx", p.ActiveDownloads,
 	)
 }
 
-func formatBytes(b int64) string {
+func formatBytes(b int64) string { // ... (inchangé)
 	const unit = 1024
 	if b < unit {
 		return fmt.Sprintf("%d B", b)
@@ -253,11 +240,11 @@ func formatBytes(b int64) string {
 	return fmt.Sprintf("%.1f %ciB", float64(b)/float64(div), "KMGTPE"[exp])
 }
 
-// loadCACert charge un certificat CA depuis un fichier et l'ajoute au pool du tls.Config
-func loadCACert(tlsConfig *tls.Config, caFile string, logger *slog.Logger) error {
-	caCert, err := ioutil.ReadFile(caFile) // os.ReadFile à partir de Go 1.16
+func loadCACertFromFile(tlsConfig *tls.Config, caFile string, logger *slog.Logger) { // Renommé
+	caCert, err := os.ReadFile(caFile) // Remplacé ioutil.ReadFile
 	if err != nil {
-		return fmt.Errorf("failed to read CA certificate file %s: %w", caFile, err)
+		logger.Error("Failed to read CA certificate file, proceeding without it", "ca_file", caFile, "error", err)
+		return
 	}
 	if tlsConfig.RootCAs == nil {
 		pool, errSys := x509.SystemCertPool()
@@ -268,8 +255,8 @@ func loadCACert(tlsConfig *tls.Config, caFile string, logger *slog.Logger) error
 		tlsConfig.RootCAs = pool
 	}
 	if ok := tlsConfig.RootCAs.AppendCertsFromPEM(caCert); !ok {
-		return fmt.Errorf("failed to append CA certificate from %s to pool", caFile)
+		logger.Error("Failed to append CA certificate to pool", "ca_file", caFile)
+	} else {
+		logger.Info("Successfully loaded CA certificate", "ca_file", caFile)
 	}
-	logger.Info("Successfully loaded CA certificate", "ca_file", caFile)
-	return nil
 }

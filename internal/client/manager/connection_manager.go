@@ -1,4 +1,4 @@
-package connectionmanager // Ou connection_manager selon vos conventions de nommage de package
+package manager // Ou connection_manager selon vos conventions de nommage de package
 
 import (
 	"container/list"
