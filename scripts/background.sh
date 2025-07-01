@@ -20,73 +20,87 @@ LOG_LEVEL="debug"
 INSECURE_ORCH_FLAG="-insecure-orch"
 
 # --- Fonctions Utilitaires ---
-cleanup() {
+start_services() {
+    # --- Préparation ---
+    echo "Préparation de l'environnement de test..."
+    mkdir -p "${BIN_DIR}"
+    mkdir -p "${LOG_DIR}"
+    mkdir -p "${AGENT_DATA_BASE_DIR}"
+
+    # Compilation des composants
+    echo "Compilation des composants..."
+    echo "  Orchestrateur..."
+    go build -o "${BIN_DIR}/orchestrator" ./cmd/orchestrator/main.go || { echo "ERREUR: Échec compilation orchestrateur"; exit 1; }
+    echo "  Agent..."
+    go build -o "${BIN_DIR}/agent"        ./cmd/agent/main.go        || { echo "ERREUR: Échec compilation agent";        exit 1; }
+    echo "Compilation terminée."
+
+    # --- Démarrage des Composants ---
+
+    # 1. Démarrer l'Orchestrateur
+    echo "Démarrage de l'Orchestrateur sur ${ORCHESTRATOR_ADDR}..."
+    rm -f "${ORCHESTRATOR_LOG}"
+    "${BIN_DIR}/orchestrator" -listen "${ORCHESTRATOR_ADDR}" -loglevel "${LOG_LEVEL}" > "${ORCHESTRATOR_LOG}" 2>&1 &
+    ORCH_PID=$!
+    echo "Orchestrateur démarré (PID: ${ORCH_PID}). Logs dans ${ORCHESTRATOR_LOG}"
+    sleep 2
+
+    if ! ps -p ${ORCH_PID} > /dev/null; then
+        echo "ERREUR: L'orchestrateur n'a pas pu démarrer. Vérifiez ${ORCHESTRATOR_LOG}"
+        cat "${ORCHESTRATOR_LOG}"
+        exit 1
+    fi
+    echo "Orchestrateur semble opérationnel."
+
+    # 2. Démarrer les Agents
+    for i in $(seq 1 ${NUM_AGENTS}); do
+        AGENT_ID="agent$(printf "%03d" ${i})"
+        AGENT_PORT=$((AGENT_BASE_PORT + i - 1))
+        AGENT_LISTEN_ADDR="192.168.1.149:${AGENT_PORT}"
+        AGENT_DATA_DIR="${AGENT_DATA_BASE_DIR}/${AGENT_ID}"
+        AGENT_LOG="${LOG_DIR}/${AGENT_ID}.log"
+
+        mkdir -p "${AGENT_DATA_DIR}"
+        rm -f "${AGENT_LOG}"
+        echo "Démarrage de l'Agent ${AGENT_ID} sur ${AGENT_LISTEN_ADDR}..."
+
+        "${BIN_DIR}/agent" \
+            -id "${AGENT_ID}" \
+            -listen "${AGENT_LISTEN_ADDR}" \
+            -data "${AGENT_DATA_DIR}" \
+            -orchestrator "${ORCHESTRATOR_ADDR}" \
+            ${INSECURE_ORCH_FLAG} \
+            -loglevel "${LOG_LEVEL}" > "${AGENT_LOG}" 2>&1 &
+        
+        echo "Agent ${AGENT_ID} démarré (PID: $!). Logs dans ${AGENT_LOG}"
+    done
+
     echo "
-Arrêt des services en arrière-plan..."
+Services en arrière-plan démarrés. Utilisez './scripts/background.sh stop' pour les arrêter."
+}
+
+stop_services() {
+    echo "Arrêt des services en arrière-plan..."
     pkill -f "${BIN_DIR}/orchestrator"
     pkill -f "${BIN_DIR}/agent"
+    # Attendre un peu pour que les processus se terminent
+    sleep 1
+    # Supprimer le fichier de lock de la base de données s'il existe encore
+    rm -f orchestrator.db-lock
     echo "Nettoyage terminé."
 }
 
-# Intercepter Ctrl+C pour nettoyer
-trap cleanup SIGINT SIGTERM
+# --- Contrôle Principal ---
+case "$1" in
+    start)
+        start_services
+        ;;
+    stop)
+        stop_services
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
+        ;;
+esac
 
-# --- Préparation ---
-echo "Préparation de l'environnement de test..."
-mkdir -p "${BIN_DIR}"
-mkdir -p "${LOG_DIR}"
-mkdir -p "${AGENT_DATA_BASE_DIR}"
-
-# Compilation des composants
-echo "Compilation des composants..."
-echo "  Orchestrateur..."
-go build -o "${BIN_DIR}/orchestrator" ./cmd/orchestrator/main.go || { echo "ERREUR: Échec compilation orchestrateur"; exit 1; }
-echo "  Agent..."
-go build -o "${BIN_DIR}/agent"        ./cmd/agent/main.go        || { echo "ERREUR: Échec compilation agent";        exit 1; }
-echo "Compilation terminée."
-
-# --- Démarrage des Composants ---
-
-# 1. Démarrer l'Orchestrateur
-echo "Démarrage de l'Orchestrateur sur ${ORCHESTRATOR_ADDR}..."
-rm -f "${ORCHESTRATOR_LOG}"
-"${BIN_DIR}/orchestrator" -listen "${ORCHESTRATOR_ADDR}" -loglevel "${LOG_LEVEL}" > "${ORCHESTRATOR_LOG}" 2>&1 &
-ORCH_PID=$!
-echo "Orchestrateur démarré (PID: ${ORCH_PID}). Logs dans ${ORCHESTRATOR_LOG}"
-sleep 2
-
-if ! ps -p ${ORCH_PID} > /dev/null; then
-    echo "ERREUR: L'orchestrateur n'a pas pu démarrer. Vérifiez ${ORCHESTRATOR_LOG}"
-    cat "${ORCHESTRATOR_LOG}"
-    exit 1
-fi
-echo "Orchestrateur semble opérationnel."
-
-# 2. Démarrer les Agents
-for i in $(seq 1 ${NUM_AGENTS}); do
-    AGENT_ID="agent$(printf "%03d" ${i})"
-    AGENT_PORT=$((AGENT_BASE_PORT + i - 1))
-    AGENT_LISTEN_ADDR="192.168.1.149:${AGENT_PORT}"
-    AGENT_DATA_DIR="${AGENT_DATA_BASE_DIR}/${AGENT_ID}"
-    AGENT_LOG="${LOG_DIR}/${AGENT_ID}.log"
-
-    mkdir -p "${AGENT_DATA_DIR}"
-    rm -f "${AGENT_LOG}"
-    echo "Démarrage de l'Agent ${AGENT_ID} sur ${AGENT_LISTEN_ADDR}..."
-
-    "${BIN_DIR}/agent" \
-        -id "${AGENT_ID}" \
-        -listen "${AGENT_LISTEN_ADDR}" \
-        -data "${AGENT_DATA_DIR}" \
-        -orchestrator "${ORCHESTRATOR_ADDR}" \
-        ${INSECURE_ORCH_FLAG} \
-        -loglevel "${LOG_LEVEL}" > "${AGENT_LOG}" 2>&1 &
-    
-    echo "Agent ${AGENT_ID} démarré (PID: $!). Logs dans ${AGENT_LOG}"
-done
-
-echo "
-Services en arrière-plan démarrés. Appuyez sur Ctrl+C pour les arrêter."
-
-# Attendre indéfiniment pour garder les processus en vie
-wait

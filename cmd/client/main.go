@@ -11,29 +11,21 @@ import (
 	"io"
 	"log/slog"
 	"os" // Remplacement pour io/ioutil
+	"bufio"
+	"encoding/json"
 	"os/signal"
 	"strings"
 	"syscall"
-	"time"
 
 	"qwrap/internal/client/downloader"
-	connectionmanager "qwrap/internal/client/manager"
 	"qwrap/internal/client/orchestratorclient"
-	"qwrap/internal/framing"
-	"qwrap/pkg/qwrappb"
+	"qwrap/pkg/kuik"
 )
 
-// ... (const alpnClientToAgent, customDestWriter) ... (inchangés)
-const alpnClientToAgent = "qwrap"
-
-type customDestWriter struct {
-	*os.File
-}
-
-func (cdw *customDestWriter) Sync() error { return cdw.File.Sync() }
+// customDestWriter is no longer needed as file handling is internal to kuik
+// const alpnClientToAgent is also internal to kuik now
 
 func main() {
-	// ... (flags inchangés) ...
 	var (
 		orchestratorAddr = flag.String("orchestrator", "localhost:7878", "Orchestrator address")
 		fileID           = flag.String("file", "testfile.dat", "File ID to download")
@@ -67,10 +59,10 @@ func main() {
 	}
 
 	handlerOptions := &slog.HandlerOptions{Level: logLevel, AddSource: true}
-	baseLogger := slog.New(slog.NewTextHandler(os.Stdout, handlerOptions)) // Renommé en baseLogger pour éviter conflit
-	slog.SetDefault(baseLogger)                                            // Important: définir le logger par défaut AVANT de créer les factories qui pourraient l'utiliser
+	baseLogger := slog.New(slog.NewTextHandler(os.Stdout, handlerOptions))
+	slog.SetDefault(baseLogger)
 
-	baseLogger.Info("qwrap client starting (new pipeline arch)", "orchestrator", *orchestratorAddr, "file_id", *fileID, "destination", *destPath, "concurrency", *concurrency)
+	baseLogger.Info("qwrap client starting (kuik API)", "orchestrator", *orchestratorAddr, "file_id", *fileID, "destination", *destPath, "concurrency", *concurrency)
 
 	mainCtx, mainCancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer mainCancel()
@@ -83,129 +75,80 @@ func main() {
 		loadCACertFromFile(orchTLSClientConf, *caFileOrch, baseLogger)
 	}
 
+	// Note: alpnClientToAgent is now an internal detail of the kuik implementation
 	agentTLSClientConf := &tls.Config{
 		InsecureSkipVerify: *insecure,
-		NextProtos:         []string{alpnClientToAgent},
+		NextProtos:         []string{"qwrap"}, // Formerly alpnClientToAgent
 	}
 	if *caFileAgent != "" {
 		loadCACertFromFile(agentTLSClientConf, *caFileAgent, baseLogger)
 	}
 
-	connMgrConfig := connectionmanager.Config{TLSClientConfig: agentTLSClientConf, Logger: baseLogger}
-	connMgr := connectionmanager.NewConnectionManager(connMgrConfig)
-
-	// Définir les factories de framing ici
-	writerFactory := func(w io.Writer, l *slog.Logger) framing.Writer {
-		// Utiliser le logger 'l' passé par le composant appelant (worker, orchComms)
-		// ou fallback sur baseLogger si 'l' est nil (ne devrait pas arriver si bien utilisé).
-		if l == nil {
-			l = baseLogger
-		}
-		return framing.NewMessageWriter(w, l.With("framing_role", "writer"))
-	}
-	readerFactory := func(r io.Reader, l *slog.Logger) framing.Reader {
-		if l == nil {
-			l = baseLogger
-		}
-		return framing.NewMessageReader(r, l.With("framing_role", "reader"))
+	// 1. Create a kuik Transport
+	transport := &kuik.Transport{
+		Logger:          baseLogger,
+		OrchestratorTLS: orchTLSClientConf,
+		AgentTLS:        agentTLSClientConf,
 	}
 
-	orchComms, err := orchestratorclient.NewQuicComms(*orchestratorAddr, orchTLSClientConf, baseLogger, writerFactory, readerFactory)
+	// 2. Create a kuik Config from flags
+	kuikConfig := &kuik.Config{
+		QwrapFileID:      *fileID,
+		QwrapDestPath:    *destPath,
+		QwrapFileSize:    *fileSize,
+		QwrapConcurrency: *concurrency,
+	}
+
+	// 3. Dial the "connection"
+	conn, err := transport.DialContext(mainCtx, *orchestratorAddr, kuikConfig)
 	if err != nil {
-		baseLogger.Error("Failed to create orchestrator comms", "error", err)
+		baseLogger.Error("Failed to dial connection via kuik", "error", err)
 		os.Exit(1)
 	}
+	defer conn.CloseWithError(0, "closing")
 
-	// Le Downloader prend maintenant les factories
-	dl := downloader.NewDownloader(connMgr, orchComms, baseLogger, *concurrency, writerFactory, readerFactory)
-
-	clientReqId := fmt.Sprintf("client-req-%d", time.Now().UnixNano())
-	transferReq := &qwrappb.TransferRequest{
-		RequestId: clientReqId,
-		FilesToTransfer: []*qwrappb.FileMetadata{
-			{FileId: *fileID, TotalSize: *fileSize},
-		},
-		Options: &qwrappb.TransferOptions{VerifyChunkChecksums: true},
-	}
-
-	destFileOS, err := os.OpenFile(*destPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	// 4. Open a "stream"
+	stream, err := conn.OpenStreamSync(mainCtx)
 	if err != nil {
-		baseLogger.Error("Failed to open destination file", "path", *destPath, "error", err)
+		baseLogger.Error("Failed to open stream via kuik", "error", err)
 		os.Exit(1)
 	}
-	destFileWriter := &customDestWriter{File: destFileOS}
+	defer stream.Close() // This closes the underlying file handle
 
-	baseLogger.Info("Initiating download...", "file_id", *fileID)
-	progressChan, finalErrorChan := dl.Download(mainCtx, transferReq, destFileWriter)
+	baseLogger.Info("Download started, reading progress from stream...")
+	reader := bufio.NewReader(stream)
+	var finalError error
 
-	var lastProgress downloader.ProgressInfo
-	// Utilisation de la constante exportée depuis le package downloader
-	ticker := time.NewTicker(downloader.ProgressReportInterval)
-	defer ticker.Stop()
-	progressBarUpdate := false
-	var downloadErr error
-	var exitCode int
-
-	shutdownCompleted := make(chan struct{})
-	go func() {
-		defer close(shutdownCompleted)
-		defer destFileWriter.Close()
-		defer connMgr.CloseAll()
-
-		downloadErr = <-finalErrorChan
-		mainCancel()
-
-		if downloadErr != nil && !errors.Is(downloadErr, context.Canceled) {
-			baseLogger.Error("Download failed", "file_id", *fileID, "error", downloadErr)
-			exitCode = 1
-		} else if errors.Is(downloadErr, context.Canceled) {
-			baseLogger.Info("Download was cancelled.", "file_id", *fileID)
-		} else {
-			baseLogger.Info("Download completed successfully!", "file_id", *fileID, "destination", *destPath)
-			exitCode = 0
-		}
-
-		shutdownTimeout := 10 * time.Second
-		baseLogger.Info("Attempting to shutdown downloader...", "timeout", shutdownTimeout)
-		if err := dl.Shutdown(shutdownTimeout); err != nil {
-			baseLogger.Error("Downloader shutdown failed", "error", err)
-			if exitCode == 0 {
-				exitCode = 1
-			}
-		} else {
-			baseLogger.Info("Downloader shutdown successful.")
-		}
-	}()
-
-consoleLoop:
+readLoop:
 	for {
-		select {
-		case p, ok := <-progressChan:
-			if !ok {
-				progressChan = nil
-				continue
+		line, err := reader.ReadBytes('\n')
+		if err != nil {
+			if !errors.Is(err, io.EOF) {
+				finalError = err // Capture non-EOF errors
 			}
-			lastProgress = p
-			progressBarUpdate = true
-		case <-ticker.C:
-			if progressBarUpdate && progressChan != nil {
-				printProgress(baseLogger, *fileID, lastProgress, false)
-				progressBarUpdate = false
-			}
-		case <-mainCtx.Done():
-			baseLogger.Info("Client main loop received context done signal.")
-			break consoleLoop
+			break readLoop
 		}
+
+		var progress downloader.ProgressInfo
+		if jsonErr := json.Unmarshal(line, &progress); jsonErr != nil {
+			baseLogger.Warn("Failed to parse progress update from stream", "error", jsonErr, "data", string(line))
+			continue
+		}
+		printProgress(baseLogger, *fileID, progress, false)
 	}
 
-	baseLogger.Info("Waiting for shutdown tasks to complete...")
-	<-shutdownCompleted
-	baseLogger.Info("All client tasks finished. Exiting.", "exit_code", exitCode)
-	os.Exit(exitCode)
+	if finalError != nil {
+		baseLogger.Error("Download failed", "error", finalError)
+		os.Exit(1)
+	} else {
+		baseLogger.Info("Download completed successfully!")
+	}
+
+	baseLogger.Info("All client tasks finished. Exiting.")
+	os.Exit(0)
 }
 
 func printProgress(logger *slog.Logger, fileID string, p downloader.ProgressInfo, final bool) {
-	// ... (inchangé)
 	percent := 0.0
 	if p.TotalSizeBytes > 0 {
 		percent = (float64(p.DownloadedSizeBytes) / float64(p.TotalSizeBytes)) * 100
@@ -227,7 +170,7 @@ func printProgress(logger *slog.Logger, fileID string, p downloader.ProgressInfo
 	)
 }
 
-func formatBytes(b int64) string { // ... (inchangé)
+func formatBytes(b int64) string {
 	const unit = 1024
 	if b < unit {
 		return fmt.Sprintf("%d B", b)
