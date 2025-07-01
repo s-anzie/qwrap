@@ -11,7 +11,7 @@ AGENT_DATA_BASE_DIR="${PROJECT_ROOT}/data/agents"
 
 ORCHESTRATOR_LOG="${LOG_DIR}/orchestrator.log"
 
-ORCHESTRATOR_ADDR="localhost:7878"
+ORCHESTRATOR_ADDR="192.168.1.149:7878"
 NUM_AGENTS=3
 AGENT_BASE_PORT=8080 # Agent1 sur 8080, Agent2 sur 8081, etc.
 
@@ -66,7 +66,7 @@ echo "Orchestrateur semble opérationnel."
 for i in $(seq 1 ${NUM_AGENTS}); do
     AGENT_ID="agent$(printf "%03d" ${i})"
     AGENT_PORT=$((AGENT_BASE_PORT + i - 1))
-    AGENT_LISTEN_ADDR="localhost:${AGENT_PORT}"
+    AGENT_LISTEN_ADDR="192.168.1.149:${AGENT_PORT}"
     AGENT_DATA_DIR="${AGENT_DATA_BASE_DIR}/${AGENT_ID}"
     AGENT_LOG="${LOG_DIR}/${AGENT_ID}.log"
 

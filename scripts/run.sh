@@ -4,8 +4,8 @@
 # Script pour compiler et exécuter le client qwrap, avec redirection des logs.
 
 # Variables de configuration (à adapter si nécessaire)
-ORCHESTRATOR_ADDR="localhost:7878"
-FILE_ID_TO_DOWNLOAD="test_1.5gb.txt" 
+ORCHESTRATOR_ADDR="192.168.1.149:7878"
+FILE_ID_TO_DOWNLOAD="test_0.1gb.txt" 
 OUTPUT_FILE_PATH="./downloaded_files/${FILE_ID_TO_DOWNLOAD}"
 LOG_DIR="./logs" # Répertoire pour les logs
 LOG_FILE_PATH="${LOG_DIR}/client.log" # Chemin complet du fichier de log

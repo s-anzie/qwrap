@@ -311,6 +311,7 @@ func (d *pipelineDownloader) manageDownloadLifecycle(
 	case <-aggregator.doneChan:
 		finalErrorLoop = aggregator.finalError
 		l.Info("ResultAggregator finished.", "error", finalErrorLoop)
+		cancelActors() // Ensure all other actors are signaled to stop.
 	case err := <-fileWriter.errorChan:
 		finalErrorLoop = err
 		l.Error("SequentialFileWriter reported a fatal error.", "error", finalErrorLoop)
