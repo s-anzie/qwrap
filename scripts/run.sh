@@ -5,7 +5,7 @@
 
 # Variables de configuration (à adapter si nécessaire)
 ORCHESTRATOR_ADDR="localhost:7878"
-FILE_ID_TO_DOWNLOAD="sirene.mp4" 
+FILE_ID_TO_DOWNLOAD="test_1.5gb.txt" 
 OUTPUT_FILE_PATH="./downloaded_files/${FILE_ID_TO_DOWNLOAD}"
 LOG_DIR="./logs" # Répertoire pour les logs
 LOG_FILE_PATH="${LOG_DIR}/client.log" # Chemin complet du fichier de log
